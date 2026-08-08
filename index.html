@@ -21,11 +21,11 @@
   <meta name="twitter:image" content="https://ahmadamdan078-byte.github.io/social-plus-website/assets/social-plus-logo.png">
   <title>Social Plus | Social Media &amp; Digital Growth Agency</title>
   <link rel="icon" href="assets/social-plus-logo.png" type="image/png">
-  <link rel="preload" href="css/styles.css?v=28" as="style">
+  <link rel="preload" href="css/styles.css?v=29" as="style">
   <link rel="preload" href="assets/social-plus-logo.png" as="image" type="image/png" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=28">
+  <link rel="stylesheet" href="css/styles.css?v=29">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Syne:wght@700;800&display=swap" media="print" onload="this.media='all'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Syne:wght@700;800&display=swap"></noscript>
   <style>
@@ -660,15 +660,22 @@
   <!-- Social AI Assistant (outside site-shell so fixed positioning works) -->
   <div class="social-ai__backdrop" id="social-ai-backdrop" hidden aria-hidden="true"></div>
   <div class="social-ai" id="social-ai">
+    <div class="social-ai__teaser" id="social-ai-teaser" hidden>
+      <span class="social-ai__teaser-text" data-i18n="ai.teaser">Need help picking a plan? ✨</span>
+      <button type="button" class="social-ai__teaser-close" id="social-ai-teaser-close" aria-label="Dismiss">×</button>
+    </div>
     <div class="social-ai__panel" id="social-ai-panel" hidden role="dialog" aria-labelledby="social-ai-title" aria-modal="true">
+      <div class="social-ai__mesh" aria-hidden="true"></div>
       <header class="social-ai__header">
         <div class="social-ai__brand">
-          <div class="social-ai__avatar">
+          <div class="social-ai__avatar social-ai__avatar--live">
             <img src="assets/social-plus-logo.png" alt="" width="40" height="33">
+            <span class="social-ai__avatar-pulse" aria-hidden="true"></span>
           </div>
           <div class="social-ai__meta">
+            <p class="social-ai__badge" data-i18n="ai.badge">Your Growth Co-Pilot</p>
             <h2 class="social-ai__name" id="social-ai-title">Social</h2>
-            <p class="social-ai__status"><span class="social-ai__dot" aria-hidden="true"></span><span data-i18n="ai.status">AI Assistant · Online</span></p>
+            <p class="social-ai__status"><span class="social-ai__dot" aria-hidden="true"></span><span id="social-ai-status-text" data-i18n="ai.status">AI Assistant · Online</span></p>
           </div>
         </div>
         <button type="button" class="social-ai__close" id="social-ai-close" aria-label="Close chat">
@@ -686,9 +693,11 @@
       </form>
     </div>
     <button type="button" class="social-ai__toggle" id="social-ai-toggle" aria-expanded="false" aria-controls="social-ai-panel" aria-label="Open Social AI">
+      <span class="social-ai__toggle-glow" aria-hidden="true"></span>
       <span class="social-ai__toggle-ring" aria-hidden="true"></span>
       <img src="assets/social-plus-logo.png" alt="" class="social-ai__toggle-img" width="32" height="26">
       <span class="social-ai__toggle-label">Social</span>
+      <span class="social-ai__toggle-hint" id="social-ai-hint" data-i18n="ai.hint">Tap to chat</span>
     </button>
   </div>
 
@@ -729,12 +738,12 @@
     <button type="button" class="admin-btn admin-btn--gold admin-btn--sm" id="admin-toolbar-done" data-i18n="admin.done">Done</button>
   </div>
 
-  <script src="js/api-base.js?v=28" defer></script>
-  <script src="js/i18n.js?v=28" defer></script>
-  <script src="js/main.js?v=28" defer></script>
-  <script src="js/site-api.js?v=28" defer></script>
-  <script src="js/social-ai-config.js?v=28" defer></script>
-  <script src="js/social-ai.js?v=28" defer></script>
-  <script src="js/sp-boot.js?v=28" defer></script>
+  <script src="js/api-base.js?v=29" defer></script>
+  <script src="js/i18n.js?v=29" defer></script>
+  <script src="js/main.js?v=29" defer></script>
+  <script src="js/site-api.js?v=29" defer></script>
+  <script src="js/social-ai-config.js?v=29" defer></script>
+  <script src="js/social-ai.js?v=29" defer></script>
+  <script src="js/sp-boot.js?v=29" defer></script>
 </body>
 </html>
