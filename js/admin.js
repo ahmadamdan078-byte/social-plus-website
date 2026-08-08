@@ -322,8 +322,6 @@
         ${activeTab === 'features' ? `
           <label class="admin-check"><input type="checkbox" data-admin-path="features.socialAi" ${get('features.socialAi', true) !== false ? 'checked' : ''}><span>${t('admin.feat.socialAi')}</span></label>
           <label class="admin-check"><input type="checkbox" data-admin-path="features.whatsapp" ${get('features.whatsapp', true) !== false ? 'checked' : ''}><span>${t('admin.feat.whatsapp')}</span></label>
-          <label class="admin-check"><input type="checkbox" data-admin-path="features.maintenance" ${get('features.maintenance', false) ? 'checked' : ''}><span>${t('admin.feat.maintenance')}</span></label>
-          <p class="admin-hint">${t('admin.feat.maintenanceHint')}</p>
         ` : ''}
         ${activeTab === 'users' ? (
           users.length ? users.map(u =>
