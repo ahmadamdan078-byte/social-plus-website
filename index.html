@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=21">
+  <link rel="stylesheet" href="css/styles.css?v=22">
   <script>
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
@@ -695,27 +695,39 @@
     <span>Admin</span>
   </button>
   <div class="admin-backdrop" id="admin-backdrop" hidden></div>
-  <aside class="admin-panel" id="admin-panel" hidden role="dialog" aria-labelledby="admin-panel-title">
+  <aside class="admin-panel" id="admin-panel" hidden role="dialog" aria-labelledby="admin-panel-title" aria-modal="true">
     <header class="admin-panel__header">
       <div>
         <h2 class="admin-panel__title" id="admin-panel-title" data-i18n="admin.title">Admin Control</h2>
         <p class="admin-panel__sub" data-i18n="admin.subtitle">Full site control</p>
       </div>
-      <button type="button" class="admin-panel__close" id="admin-close" aria-label="Close">&times;</button>
+      <button type="button" class="admin-panel__close" id="admin-close" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
     </header>
     <div class="admin-panel__body" id="admin-panel-body"></div>
+    <footer class="admin-panel__footer">
+      <button type="button" class="admin-btn" id="admin-close-footer" data-i18n="admin.close">Close</button>
+      <button type="button" class="admin-btn admin-btn--primary" id="admin-save" data-i18n="admin.save">Save changes</button>
+    </footer>
   </aside>
 
-  <script src="js/i18n.js?v=18" defer></script>
-  <script src="js/admin-config.js?v=18" defer></script>
-  <script src="js/firebase-config.js?v=18" defer></script>
-  <script src="js/security.js?v=18" defer></script>
-  <script src="js/db.js?v=18" defer></script>
-  <script src="js/local-auth.js?v=18" defer></script>
-  <script src="js/auth.js?v=18" defer></script>
-  <script src="js/admin.js?v=21" defer></script>
-  <script src="js/social-ai-config.js?v=18" defer></script>
-  <script src="js/social-ai.js?v=18" defer></script>
-  <script src="js/main.js?v=19" defer></script>
+  <div class="admin-toolbar" id="admin-toolbar" hidden>
+    <span class="admin-toolbar__label" data-i18n="admin.liveEditActive">Live editing — click any text</span>
+    <button type="button" class="admin-btn admin-btn--sm" id="admin-toolbar-save" data-i18n="admin.save">Save</button>
+    <button type="button" class="admin-btn admin-btn--gold admin-btn--sm" id="admin-toolbar-done" data-i18n="admin.done">Done</button>
+  </div>
+
+  <script src="js/i18n.js?v=22" defer></script>
+  <script src="js/admin-config.js?v=22" defer></script>
+  <script src="js/firebase-config.js?v=22" defer></script>
+  <script src="js/security.js?v=22" defer></script>
+  <script src="js/db.js?v=22" defer></script>
+  <script src="js/local-auth.js?v=22" defer></script>
+  <script src="js/auth.js?v=22" defer></script>
+  <script src="js/admin.js?v=22" defer></script>
+  <script src="js/social-ai-config.js?v=22" defer></script>
+  <script src="js/social-ai.js?v=22" defer></script>
+  <script src="js/main.js?v=22" defer></script>
 </body>
 </html>
