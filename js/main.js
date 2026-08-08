@@ -309,8 +309,15 @@
   if (contactForm) {
     bindFormValidation(contactForm);
 
-    contactForm.addEventListener('submit', (e) => {
+    contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      if (window.SP_SECURITY && window.SP_SECURITY.requireAuthForForms() && !window.SP_SECURITY.isAuthenticated()) {
+        showToast(window.SP_SECURITY.authRequiredMessage());
+        document.getElementById('nav-auth-btn')?.click();
+        return;
+      }
+
       const fields = contactForm.querySelectorAll('input, select, textarea');
       let isValid = true;
       fields.forEach(field => { if (!validateField(field)) isValid = false; });
@@ -320,16 +327,33 @@
       const serviceSelect = contactForm.querySelector('#service');
       const serviceLabel = serviceSelect.options[serviceSelect.selectedIndex].text;
 
+      const payload = {
+        name: data.name.trim(),
+        email: data.email.trim(),
+        phone: data.phone ? data.phone.trim() : '',
+        service: serviceLabel,
+        message: data.message.trim()
+      };
+
+      if (window.SP_DB && window.SP_DB.isReady()) {
+        try {
+          await window.SP_DB.saveContact(payload);
+        } catch (err) {
+          showToast(t('error.saveFailed'));
+          return;
+        }
+      }
+
       const lines = [
         'New message from Social Plus website',
         '',
-        `Name: ${data.name.trim()}`,
-        `Phone: ${data.phone ? data.phone.trim() : 'Not provided'}`,
-        `Email: ${data.email.trim()}`,
-        `Service: ${serviceLabel}`,
+        `Name: ${payload.name}`,
+        `Phone: ${payload.phone || 'Not provided'}`,
+        `Email: ${payload.email}`,
+        `Service: ${payload.service}`,
         '',
         'Message:',
-        data.message.trim()
+        payload.message
       ];
 
       contactForm.reset();
@@ -343,8 +367,15 @@
     bindFormValidation(auditForm);
     const auditSuccess = document.getElementById('audit-success');
 
-    auditForm.addEventListener('submit', (e) => {
+    auditForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      if (window.SP_SECURITY && window.SP_SECURITY.requireAuthForForms() && !window.SP_SECURITY.isAuthenticated()) {
+        showToast(window.SP_SECURITY.authRequiredMessage());
+        document.getElementById('nav-auth-btn')?.click();
+        return;
+      }
+
       const fields = auditForm.querySelectorAll('input, select, textarea');
       let isValid = true;
       fields.forEach(field => { if (!validateField(field)) isValid = false; });
@@ -352,13 +383,29 @@
 
       const data = Object.fromEntries(new FormData(auditForm).entries());
 
+      const payload = {
+        name: data.name.trim(),
+        username: data.username.trim(),
+        whatsapp: data.whatsapp.trim(),
+        business: data.business.trim()
+      };
+
+      if (window.SP_DB && window.SP_DB.isReady()) {
+        try {
+          await window.SP_DB.saveAudit(payload);
+        } catch (err) {
+          showToast(t('error.saveFailed'));
+          return;
+        }
+      }
+
       const lines = [
         'Free Instagram Audit Request — Social Plus',
         '',
-        `Name: ${data.name.trim()}`,
-        `Instagram: ${data.username.trim()}`,
-        `WhatsApp: ${data.whatsapp.trim()}`,
-        `Business: ${data.business.trim()}`
+        `Name: ${payload.name}`,
+        `Instagram: ${payload.username}`,
+        `WhatsApp: ${payload.whatsapp}`,
+        `Business: ${payload.business}`
       ];
 
       auditForm.reset();

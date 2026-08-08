@@ -165,7 +165,9 @@ window.SP_I18N = {
     'auth.error.providerDisabled': 'This sign-in method is not enabled yet.',
     'auth.error.network': 'Network error. Check your connection and try again.',
     'auth.error.generic': 'Something went wrong. Please try again.',
-    'auth.error.notConfigured': 'Sign-in is not configured yet. Contact the site administrator.'
+    'auth.error.notConfigured': 'Sign-in is not configured yet. Contact the site administrator.',
+    'auth.error.loginRequired': 'Please sign in before submitting a form.',
+    'error.saveFailed': 'Could not save your submission securely. Please try again.'
   },
   ar: {
     'nav.home': 'الرئيسية',
@@ -333,6 +335,8 @@ window.SP_I18N = {
     'auth.error.providerDisabled': 'طريقة التسجيل هذه غير مفعّلة بعد.',
     'auth.error.network': 'خطأ في الشبكة. تحقق من الاتصال وحاول مجدداً.',
     'auth.error.generic': 'حدث خطأ. يرجى المحاولة مرة أخرى.',
-    'auth.error.notConfigured': 'تسجيل الدخول غير مُعد بعد. تواصل مع مدير الموقع.'
+    'auth.error.notConfigured': 'تسجيل الدخول غير مُعد بعد. تواصل مع مدير الموقع.',
+    'auth.error.loginRequired': 'يرجى تسجيل الدخول قبل إرسال النموذج.',
+    'error.saveFailed': 'تعذر حفظ طلبك بشكل آمن. يرجى المحاولة مرة أخرى.'
   }
 };

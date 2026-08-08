@@ -1,0 +1,80 @@
+rules_version = '2';
+
+// Deploy: firebase deploy --only firestore:rules
+// Firebase Console → Firestore → Rules (paste if not using CLI)
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function validString(field, min, max) {
+      return field is string && field.size() >= min && field.size() <= max;
+    }
+
+    function validEmail(field) {
+      return validString(field, 5, 254)
+        && field.matches('^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$');
+    }
+
+    function validTimestamp(field) {
+      return field is timestamp;
+    }
+
+    // User profiles — each user can read/write ONLY their own document
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId)
+        && request.resource.data.keys().hasOnly(['email', 'displayName', 'provider', 'createdAt', 'lastLoginAt', 'lang'])
+        && validEmail(request.resource.data.email)
+        && validString(request.resource.data.displayName, 0, 100)
+        && validString(request.resource.data.provider, 2, 32)
+        && request.resource.data.lang in ['en', 'ar']
+        && validTimestamp(request.resource.data.createdAt)
+        && validTimestamp(request.resource.data.lastLoginAt);
+      allow update: if isOwner(userId)
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.lang in ['en', 'ar']
+        && validTimestamp(request.resource.data.lastLoginAt);
+      allow delete: if false;
+    }
+
+    // Contact form — authenticated users can CREATE only; no client reads
+    match /contact_submissions/{docId} {
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasOnly(['uid', 'name', 'email', 'phone', 'service', 'message', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && validString(request.resource.data.name, 1, 100)
+        && validEmail(request.resource.data.email)
+        && validString(request.resource.data.phone, 0, 30)
+        && validString(request.resource.data.service, 1, 80)
+        && validString(request.resource.data.message, 1, 2000)
+        && validTimestamp(request.resource.data.createdAt);
+      allow read, update, delete: if false;
+    }
+
+    // Instagram audit — authenticated users can CREATE only
+    match /audit_submissions/{docId} {
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasOnly(['uid', 'name', 'username', 'whatsapp', 'business', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && validString(request.resource.data.name, 1, 100)
+        && validString(request.resource.data.username, 1, 50)
+        && validString(request.resource.data.whatsapp, 5, 30)
+        && validString(request.resource.data.business, 1, 80)
+        && validTimestamp(request.resource.data.createdAt);
+      allow read, update, delete: if false;
+    }
+
+    // Deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

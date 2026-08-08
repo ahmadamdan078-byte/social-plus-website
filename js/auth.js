@@ -265,12 +265,21 @@
     auth = window.firebase.auth();
     firebaseReady = true;
 
+    if (window.SP_DB) window.SP_DB.init();
+
     auth.getRedirectResult().catch(err => {
       if (err.code !== 'auth/no-auth-event') showError(mapFirebaseError(err.code));
     }).finally(() => setLoading(false));
 
-    auth.onAuthStateChanged(user => {
+    auth.onAuthStateChanged(async user => {
       if (user) {
+        if (window.SP_DB && window.SP_DB.ensureUserProfile) {
+          try {
+            await window.SP_DB.ensureUserProfile(user);
+          } catch (err) {
+            console.error('Profile sync failed:', err);
+          }
+        }
         unlockSite(user);
       } else if (AUTH_REQUIRED) {
         lockSite();
