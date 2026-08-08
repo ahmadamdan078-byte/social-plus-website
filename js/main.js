@@ -183,58 +183,6 @@
     link.addEventListener('click', closeMobileNav);
   });
 
-  /* ---- Custom cursor (desktop only) ---- */
-  if (FINE_POINTER && !REDUCED_MOTION) {
-    const cursor = document.getElementById('cursor');
-    const follower = document.getElementById('cursor-follower');
-
-    if (cursor && follower) {
-      document.body.classList.add('has-custom-cursor');
-      let mx = 0;
-      let my = 0;
-      let fx = 0;
-      let fy = 0;
-      let rafId = null;
-
-      function moveCursor() {
-        fx += (mx - fx) * 0.18;
-        fy += (my - fy) * 0.18;
-        cursor.style.transform = `translate(${mx}px, ${my}px)`;
-        follower.style.transform = `translate(${fx}px, ${fy}px)`;
-
-        const dx = Math.abs(mx - fx);
-        const dy = Math.abs(my - fy);
-        if (dx < 0.5 && dy < 0.5) {
-          rafId = null;
-          return;
-        }
-        rafId = requestAnimationFrame(moveCursor);
-      }
-
-      let moveTimer = null;
-      document.addEventListener('mousemove', (e) => {
-        mx = e.clientX;
-        my = e.clientY;
-        if (!rafId) rafId = requestAnimationFrame(moveCursor);
-        clearTimeout(moveTimer);
-        moveTimer = setTimeout(() => {
-          if (rafId) {
-            cancelAnimationFrame(rafId);
-            rafId = requestAnimationFrame(moveCursor);
-          }
-        }, 120);
-      }, { passive: true });
-
-      document.addEventListener('mouseover', (e) => {
-        const interactive = e.target.closest('a, button, .service-card, .portfolio-card, .pricing-card, input, select, textarea, .filter-btn, .auth-gate, .auth-oauth-btn, .auth-tabs__btn, .auth-card__close');
-        document.body.classList.toggle('cursor-hover', !!interactive);
-      });
-
-      document.addEventListener('mousedown', () => document.body.classList.add('cursor-click'));
-      document.addEventListener('mouseup', () => document.body.classList.remove('cursor-click'));
-    }
-  }
-
   /* ---- Method scroll progress ---- */
   function updateProcessProgress() {
     if (!processTrack || !processProgress || REDUCED_MOTION) return;
