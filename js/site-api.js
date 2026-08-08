@@ -18,7 +18,7 @@
   }
 
   function trackPageView() {
-    fetch('/api/analytics/event', {
+    fetch(window.spApi('/api/analytics/event'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -39,8 +39,8 @@
     }
     el.textContent = `
       :root {
-        --gold: ${design.primary_color || '#c9a227'};
-        --gold-light: ${design.accent_color || '#e8c547'};
+        --gold: ${design.primary_color || '#E91E8C'};
+        --gold-light: ${design.accent_color || '#FF5722'};
         --bg: ${design.bg_color || '#0a0a0f'};
         --text: ${design.text_color || '#f5f5f7'};
         --radius: ${design.border_radius || '12px'};
@@ -92,7 +92,7 @@
     if (!bar) {
       bar = document.createElement('div');
       bar.id = 'sp-announcement-bar';
-      bar.style.cssText = 'background:linear-gradient(90deg,#c9a227,#e8c547);color:#0a0a0f;text-align:center;padding:8px 16px;font-size:0.875rem;font-weight:600;position:fixed;top:0;left:0;right:0;z-index:9999';
+      bar.style.cssText = 'background:linear-gradient(180deg,#E91E8C,#FF5722);color:#fff;text-align:center;padding:8px 16px;font-size:0.875rem;font-weight:600;position:fixed;top:0;left:0;right:0;z-index:9999';
       document.body.prepend(bar);
       document.body.style.paddingTop = '36px';
     }
@@ -102,7 +102,7 @@
 
   async function loadSiteConfig() {
     try {
-      const res = await fetch('/api/public/site-config');
+      const res = await fetch(window.spApi('/api/public/site-config'));
       if (!res.ok) return;
       const config = await res.json();
       const lang = document.documentElement.lang === 'ar' ? 'ar' : 'en';
@@ -127,7 +127,7 @@
   }
 
   window.SP_trackConversion = function (metadata) {
-    fetch('/api/analytics/event', {
+    fetch(window.spApi('/api/analytics/event'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -139,13 +139,25 @@
     }).catch(() => {});
   };
 
+  function whenIdle(fn) {
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(fn, { timeout: 3000 });
+    } else {
+      setTimeout(fn, 400);
+    }
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
+      whenIdle(() => {
+        loadSiteConfig();
+        trackPageView();
+      });
+    });
+  } else {
+    whenIdle(() => {
       loadSiteConfig();
       trackPageView();
     });
-  } else {
-    loadSiteConfig();
-    trackPageView();
   }
 })();

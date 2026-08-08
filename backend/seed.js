@@ -79,10 +79,10 @@ function seed() {
   });
 
   const designDefaults = {
-    primary_color: '#c9a227',
-    bg_color: '#0a0a0f',
+    primary_color: '#E91E8C',
+    accent_color: '#FF5722',
+    bg_color: '#080808',
     text_color: '#f5f5f7',
-    accent_color: '#e8c547',
     font_family: 'Inter, system-ui, sans-serif',
     border_radius: '12px',
     dark_mode: 'true',
@@ -92,6 +92,21 @@ function seed() {
   };
   const upsertDesign = db.prepare(`INSERT INTO design_settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO NOTHING`);
   Object.entries(designDefaults).forEach(([k, v]) => upsertDesign.run(k, v));
+
+  const { seedPaymentMethods } = require('./payments/settings-service');
+  seedPaymentMethods();
+
+  const promoCount = db.prepare(`SELECT COUNT(*) as c FROM promo_codes`).get().c;
+  if (promoCount === 0) {
+    db.prepare(`
+      INSERT INTO promo_codes (code, type, value, max_uses, min_amount_cents, active)
+      VALUES ('WELCOME10', 'percent', 10, 100, 0, 1)
+    `).run();
+    db.prepare(`
+      INSERT INTO promo_codes (code, type, value, max_uses, min_amount_cents, active)
+      VALUES ('SOCIAL5', 'fixed', 5, 0, 1200, 1)
+    `).run();
+  }
 
   console.log('Seed complete.');
 }

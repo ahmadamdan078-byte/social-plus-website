@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Payment Successful — Social Plus</title>
+  <link rel="icon" href="assets/social-plus-logo.png">
+  <link rel="stylesheet" href="css/styles.css?v=28">
+</head>
+<body class="pay-page">
+  <main class="pay-main">
+    <div class="container pay-main__inner">
+      <div class="pay-success__card card-glow checkout-result" id="result">
+        <div class="pay-success__icon" id="result-icon">…</div>
+        <h1 id="result-title">Verifying payment…</h1>
+        <p id="result-desc">Please wait while we confirm your payment securely.</p>
+        <dl class="checkout-receipt" id="receipt" hidden>
+          <div><dt>Order ID</dt><dd id="r-order">—</dd></div>
+          <div><dt>Transaction ID</dt><dd id="r-txn">—</dd></div>
+          <div><dt>Amount</dt><dd id="r-amount">—</dd></div>
+          <div><dt>Email</dt><dd id="r-email">—</dd></div>
+        </dl>
+        <a href="index.html" class="btn btn--primary">Back to website</a>
+      </div>
+    </div>
+  </main>
+  <script src="js/api-base.js?v=27"></script>
+  <script src="js/checkout-success.js?v=28"></script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <title>Checkout — Social Plus</title>
+  <link rel="icon" href="assets/social-plus-logo.png">
+  <meta name="sp-api-base" content="">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=29">
+  <link rel="stylesheet" href="css/checkout-store.css?v=29">
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body class="store-checkout">
+
+  <header class="store-header">
+    <a href="index.html#pricing" class="store-header__back">← Back</a>
+    <a href="index.html" class="store-header__logo">
+      <img src="assets/logo.jpg" alt="Social Plus" width="36" height="36">
+      <span>Social Plus</span>
+    </a>
+    <span class="store-header__secure">🔒 Secure checkout</span>
+  </header>
+
+  <main class="store-main" id="store-app">
+    <div class="store-skeleton" id="store-skeleton">
+      <div class="sk-block"></div><div class="sk-block sk-block--sm"></div><div class="sk-block"></div>
+    </div>
+
+    <div class="store-unavailable" id="store-unavailable" hidden>
+      <div class="store-fallback">
+        <h2>Complete your order</h2>
+        <p class="store-fallback__note">Online card checkout runs when the server is active. You can order now via WhatsApp — we’ll confirm and send payment details securely.</p>
+        <div class="store-fallback__product">
+          <img id="fb-img" src="assets/social-plus-logo.png" alt="" width="64" height="64">
+          <div>
+            <strong id="fb-plan">Growth Plan</strong>
+            <p id="fb-price">$25.00</p>
+          </div>
+        </div>
+        <div class="store-field">
+          <label for="fb-name">Your name</label>
+          <input type="text" id="fb-name" required placeholder="Full name">
+        </div>
+        <div class="store-field">
+          <label for="fb-email">Email</label>
+          <input type="email" id="fb-email" placeholder="you@email.com">
+        </div>
+        <div class="store-field">
+          <label for="fb-phone">WhatsApp number</label>
+          <input type="tel" id="fb-phone" placeholder="+970" required>
+        </div>
+        <a id="fb-wa-btn" class="store-btn store-btn--pay" href="#" target="_blank" rel="noopener">Order via WhatsApp</a>
+        <a href="index.html#contact" class="store-btn store-btn--ghost" style="width:100%;margin-top:10px;text-align:center;display:block">Contact page</a>
+      </div>
+    </div>
+
+    <div class="store-grid" id="store-grid" hidden>
+      <!-- Left: payment -->
+      <section class="store-panel store-panel--pay">
+        <h1 class="store-title">Complete your purchase</h1>
+        <p class="store-sub">Choose a payment method. Your data is encrypted and never stored on our servers.</p>
+
+        <form id="checkout-form" novalidate>
+          <div class="store-field">
+            <label for="co-name">Full name</label>
+            <input type="text" id="co-name" required autocomplete="name">
+          </div>
+          <div class="store-field-row">
+            <div class="store-field">
+              <label for="co-email">Email</label>
+              <input type="email" id="co-email" required autocomplete="email">
+            </div>
+            <div class="store-field">
+              <label for="co-phone">Phone</label>
+              <input type="tel" id="co-phone" autocomplete="tel" placeholder="+970">
+            </div>
+          </div>
+
+          <div class="store-promo">
+            <input type="text" id="co-promo" placeholder="Promo or gift code" autocomplete="off">
+            <button type="button" class="store-btn store-btn--ghost" id="co-promo-apply">Apply</button>
+          </div>
+          <p class="store-promo-msg" id="co-promo-msg" hidden></p>
+
+          <div class="store-wallet" id="co-wallet-row" hidden>
+            <label class="store-wallet__label">
+              <input type="checkbox" id="co-use-wallet">
+              <span>Use wallet balance (<strong id="co-wallet-bal">$0.00</strong>)</span>
+            </label>
+          </div>
+
+          <p class="store-section-label">Payment method</p>
+          <div class="store-methods" id="co-methods" role="radiogroup"></div>
+
+          <div class="store-card-area" id="co-stripe-wrap" hidden>
+            <p class="store-section-label">Payment details</p>
+            <p class="store-card-note">Secured by Stripe — card numbers and CVV are tokenized, never stored here.</p>
+            <div id="co-stripe-element" class="store-stripe-mount"></div>
+          </div>
+
+          <div class="store-field" id="co-country-wrap">
+            <label for="co-country">Billing country</label>
+            <select id="co-country" autocomplete="country">
+              <option value="PS">Palestine</option>
+              <option value="JO">Jordan</option>
+              <option value="SA">Saudi Arabia</option>
+              <option value="AE">UAE</option>
+              <option value="US">United States</option>
+              <option value="GB">United Kingdom</option>
+            </select>
+          </div>
+
+          <label class="store-terms">
+            <input type="checkbox" id="co-terms" required>
+            <span>I agree to the terms, refund policy, and privacy policy.</span>
+          </label>
+
+          <button type="submit" class="store-btn store-btn--pay" id="co-submit">
+            <span class="store-btn__text">Pay Now</span>
+            <span class="store-btn__loader" hidden></span>
+          </button>
+
+          <p class="store-error" id="co-error" hidden role="alert"></p>
+        </form>
+      </section>
+
+      <!-- Right: summary -->
+      <aside class="store-panel store-panel--summary">
+        <h2 class="store-summary-title">Order summary</h2>
+        <div class="store-product">
+          <img id="sum-img" src="assets/social-plus-logo.png" alt="" width="72" height="72">
+          <div>
+            <p class="store-product__name" id="sum-plan">—</p>
+            <p class="store-product__qty">Qty: <span id="sum-qty">1</span></p>
+          </div>
+        </div>
+        <div class="store-qty-control">
+          <label for="co-qty">Quantity</label>
+          <div class="store-qty-btns">
+            <button type="button" id="qty-minus" aria-label="Decrease">−</button>
+            <input type="number" id="co-qty" min="1" max="99" value="1">
+            <button type="button" id="qty-plus" aria-label="Increase">+</button>
+          </div>
+        </div>
+        <dl class="store-lines">
+          <div><dt>Subtotal</dt><dd id="sum-sub">—</dd></div>
+          <div><dt>Discount</dt><dd id="sum-disc" class="store-lines--disc">$0.00</dd></div>
+          <div><dt>Tax</dt><dd id="sum-tax">$0.00</dd></div>
+          <div><dt>Fees</dt><dd id="sum-fees">$0.00</dd></div>
+          <div id="sum-wallet-row" hidden><dt>Wallet</dt><dd id="sum-wallet" class="store-lines--disc">−$0.00</dd></div>
+          <div class="store-lines__total"><dt>Total due</dt><dd id="sum-total">—</dd></div>
+        </dl>
+        <p class="store-summary-note">Prices verified on our servers. Transaction ID issued on success.</p>
+      </aside>
+    </div>
+  </main>
+
+  <script src="js/api-base.js?v=29"></script>
+  <script src="js/checkout-store.js?v=29"></script>
+</body>
+</html>

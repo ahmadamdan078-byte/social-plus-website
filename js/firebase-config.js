@@ -8,7 +8,7 @@
  * 4. Project Settings → Your apps → Web → copy config below
  * 5. Authentication → Settings → Authorized domains → add ALL of these:
  *    - localhost
- *    - social-plus-website.onrender.com
+ *    - ahmadamdan078-byte.github.io
  *    - ahmadamdan078-byte.github.io
  *    - your custom domain (e.g. socialplus.ps)
  * 6. Deploy security rules (protects database):

@@ -1,5 +1,7 @@
 const API = {
-  base: '/api',
+  get base() {
+    return (typeof window !== 'undefined' && window.SP_API_BASE ? window.SP_API_BASE : '') + '/api';
+  },
   token: localStorage.getItem('sp_admin_token') || '',
 
   setToken(token) {

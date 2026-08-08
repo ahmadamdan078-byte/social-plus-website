@@ -2,6 +2,7 @@
   "name": "social-plus-website",
   "private": true,
   "scripts": {
-    "build": "node scripts/inject-firebase-config.js"
+    "build": "node scripts/inject-firebase-config.js",
+    "test:payments": "NODE_PATH=./server/node_modules node scripts/test-payments.js"
   }
 }

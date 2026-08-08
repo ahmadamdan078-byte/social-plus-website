@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Payment Cancelled — Social Plus</title>
+  <link rel="icon" href="assets/social-plus-logo.png">
+  <link rel="stylesheet" href="css/styles.css?v=28">
+</head>
+<body class="pay-page">
+  <main class="pay-main">
+    <div class="container pay-main__inner">
+      <div class="pay-success__card card-glow checkout-result checkout-result--cancel">
+        <div class="pay-success__icon checkout-result__icon--cancel">✕</div>
+        <h1>Payment cancelled</h1>
+        <p>Your payment was not completed. No charge was made.</p>
+        <div class="checkout-result__actions">
+          <a href="pay.html" class="btn btn--primary" id="retry-link">Try again</a>
+          <a href="index.html#pricing" class="btn btn--outline">View plans</a>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const plan = params.get('plan') || 'growth';
+    document.getElementById('retry-link').href = `pay.html?plan=${plan}`;
+  </script>
+</body>
+</html>

@@ -1,51 +1,82 @@
-# Deploy & Live Site Troubleshooting
+# Deploy Social Plus (no Render, no paid domain required)
 
-## Live URLs
+## Live website — GitHub Pages (free)
 
-| Host | URL |
-|------|-----|
-| GitHub Pages | https://ahmadamdan078-byte.github.io/social-plus-website/ |
-| Render | https://social-plus-website.onrender.com/ |
+**URL:** https://ahmadamdan078-byte.github.io/social-plus-website/
 
-GitHub Pages usually updates within 1–2 minutes after a push to `main`.
+No custom domain needed. GitHub Pages is free and fast — **no cold start**.
 
-## Render not updating?
+### One-time setup
 
-If Render still shows old content (e.g. old pricing text), auto-deploy is likely broken.
+1. GitHub → repo **social-plus-website** → **Settings** → **Pages**
+2. **Source:** GitHub Actions (not “Deploy from branch”)
+3. Push to `main` — the workflow `.github/workflows/deploy-pages.yml` deploys automatically
 
-### Fix in 3 steps
+### After each push
 
-1. **Manual deploy (immediate fix)**  
-   Render Dashboard → **social-plus-website** → **Manual Deploy** → **Deploy latest commit**
+Wait 1–2 minutes, then open the live URL. Hard refresh: **Cmd+Shift+R**.
 
-2. **Check GitHub connection**  
-   Settings → **Build & Deploy**  
-   - Repository: `ahmadamdan078-byte/social-plus-website`  
-   - Branch: `main`  
-   - Auto-Deploy: **On**  
-   - Build Command: `node scripts/inject-firebase-config.js`  
-   - Publish Directory: `.`
+---
 
-3. **Add deploy hook (keeps Render in sync forever)**  
-   - Render → Settings → **Deploy Hook** → Copy URL  
-   - GitHub → repo → **Settings** → **Secrets and variables** → **Actions**  
-   - New secret: `RENDER_DEPLOY_HOOK` = paste the URL  
-   - Every push to `main` will trigger a Render deploy via GitHub Actions
+## Payments & admin API — Railway (optional)
 
-### After deploy
+The public website runs on GitHub Pages. For **Stripe checkout**, **webhooks**, and the **admin dashboard API**, deploy the Node server on [Railway](https://railway.app) (free trial credits, then pay-as-you-go).
 
-Hard refresh: **Cmd+Shift+R** (Mac) or **Ctrl+Shift+R** (Windows)
+### Railway setup
 
-### Verify live version
+1. Sign up at [railway.app](https://railway.app) with GitHub
+2. **New Project** → **Deploy from GitHub repo** → `social-plus-website`
+3. Railway reads `railway.toml` and `Procfile` automatically
+4. Add environment variables:
 
-- Open `/pay.html` — should load the checkout page  
-- Pricing should say **Graphic designer**, not Priority support  
-- `index.html` scripts should use `?v=25` or newer
+```bash
+NODE_ENV=production
+JWT_SECRET=your-long-random-secret
+PUBLIC_BASE_URL=https://YOUR-APP.up.railway.app
+SUPER_ADMIN_EMAIL=hamdanmustafa840@gmail.com
+SUPER_ADMIN_PASSWORD=your-secure-password
+STRIPE_SECRET_KEY=sk_...
+STRIPE_PUBLISHABLE_KEY=pk_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
+
+5. Copy your Railway URL (e.g. `https://social-plus-production.up.railway.app`)
+6. In `index.html`, set the API base (one line):
+
+```html
+<meta name="sp-api-base" content="https://YOUR-APP.up.railway.app">
+```
+
+Also set `PUBLIC_BASE_URL` on Railway to that same URL.
+
+7. Stripe webhook URL: `https://YOUR-APP.up.railway.app/api/payments/webhook/stripe`
+
+### What works where
+
+| Feature | GitHub Pages only | GitHub Pages + Railway |
+|---------|-------------------|-------------------------|
+| Website | Yes | Yes |
+| Checkout / Stripe | No | Yes |
+| Admin `/admin` | UI only | Full (login on Railway URL or with `sp-api-base`) |
+| WhatsApp / forms | WhatsApp yes; forms need API | Full |
+
+---
+
+## Custom domain (optional — skip)
+
+You don't need one. Use the GitHub Pages URL above. See `DOMAIN.md` only if you want a paid custom URL later.
+
+---
 
 ## Local preview
 
 ```bash
 ./start.sh
-# or for static only:
-python3 -m http.server 5500
+# → http://localhost:5500
 ```
+
+---
+
+## Remove Render (if you used it)
+
+Delete the old Render services in the [Render dashboard](https://dashboard.render.com) — this project no longer uses Render.

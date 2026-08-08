@@ -2,16 +2,11 @@
 
 A modern, professional website for **Social Plus** — a social media and digital services brand based in Palestine.
 
-## Quick Start
+## Live site
 
-Open `index.html` in your browser, or run a local server:
+**https://ahmadamdan078-byte.github.io/social-plus-website/**
 
-```bash
-cd social-plus-website
-python3 -m http.server 8080
-```
-
-Then visit [http://localhost:8080](http://localhost:8080)
+Deploys automatically via GitHub Actions on push to `main`. See `DEPLOY.md`.
 
 ## Project Structure
 

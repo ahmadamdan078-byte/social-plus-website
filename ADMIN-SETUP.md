@@ -19,7 +19,7 @@ JWT_SECRET=long-random-string
 ## Run locally
 
 ```bash
-npm install
+npm install --prefix server
 ./start.sh
 ```
 
@@ -41,11 +41,12 @@ npm install
 | Database | View/edit records, backup/restore |
 | Security | Password change, optional 2FA |
 
-## Deploy (Render)
+## Deploy
 
-The site is configured as a **Node web service** in `render.yaml`. Set `SUPER_ADMIN_PASSWORD` in the Render dashboard. A persistent disk mounts at `data/` for SQLite.
+- **Website:** GitHub Pages (see `DEPLOY.md`)
+- **Admin API:** [Railway](https://railway.app) — deploy this repo; set env vars from `DEPLOY.md`
 
-GitHub Pages serves static files only — use Render for the full admin platform.
+Open admin at `https://YOUR-APP.up.railway.app/admin`, or set `sp-api-base` in `admin/index.html` to your Railway URL.
 
 ## Permissions
 

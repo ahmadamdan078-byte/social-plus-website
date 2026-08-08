@@ -570,34 +570,137 @@
   async function viewOrders() {
     const main = $('#main-content');
     const q = main.dataset.q || '';
-    const { orders } = await API.get(`/orders?q=${encodeURIComponent(q)}`);
+    const status = main.dataset.payStatus || '';
+    let tab = main.dataset.tab || 'payments';
+
+    const [ordersRes, paymentsRes, analyticsRes, promosRes, methodsRes] = await Promise.all([
+      API.get(`/orders?q=${encodeURIComponent(q)}`),
+      API.get(`/payments?q=${encodeURIComponent(q)}${status ? `&status=${status}` : ''}`),
+      API.get('/checkout/admin/analytics').catch(() => ({ stats: {}, byMethod: [], daily: [] })),
+      API.get('/checkout/admin/promos').catch(() => ({ promos: [] })),
+      API.get('/checkout/admin/methods').catch(() => ({ methods: [] }))
+    ]);
+
+    function payBadge(s) {
+      const safe = (s || 'pending').replace('_', '-');
+      return `<span class="payment-badge payment-badge--${safe}">${esc(s || 'pending')}</span>`;
+    }
+
+    const st = analyticsRes.stats || {};
 
     main.innerHTML = `
-      <div class="toolbar">
-        <input type="search" id="order-search" placeholder="Search orders…" value="${esc(q)}">
-        <button class="btn btn-secondary btn-sm" id="export-orders">Export JSON</button>
+      <div class="tabs">
+        <button class="tab ${tab==='payments'?'active':''}" data-tab="payments">Transactions</button>
+        <button class="tab ${tab==='analytics'?'active':''}" data-tab="analytics">Analytics</button>
+        <button class="tab ${tab==='promos'?'active':''}" data-tab="promos">Promo codes</button>
+        <button class="tab ${tab==='methods'?'active':''}" data-tab="methods">Methods</button>
+        <button class="tab ${tab==='orders'?'active':''}" data-tab="orders">Orders</button>
       </div>
-      <div class="table-wrap"><table>
-        <thead><tr><th>ID</th><th>Customer</th><th>Service</th><th>Status</th><th>Amount</th><th>Date</th><th></th></tr></thead>
-        <tbody>${orders.map(o => `<tr>
+      <div class="toolbar">
+        <input type="search" id="order-search" placeholder="Search…" value="${esc(q)}">
+        <select id="pay-status-filter">
+          <option value="">All statuses</option>
+          ${['pending','processing','succeeded','failed','cancelled','refunded','partially_refunded','disputed'].map(s=>`<option value="${s}" ${status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div id="orders-panel"></div>`;
+
+    $$('.tab', main).forEach(t => t.onclick = () => { main.dataset.tab = t.dataset.tab; viewOrders(); });
+    $('#order-search').onchange = (e) => { main.dataset.q = e.target.value; viewOrders(); };
+    $('#pay-status-filter').onchange = (e) => { main.dataset.payStatus = e.target.value; viewOrders(); };
+
+    const panel = $('#orders-panel');
+
+    if (tab === 'analytics') {
+      panel.innerHTML = `
+        <div class="stat-grid">
+          <div class="stat-card"><span class="stat-label">Revenue</span><strong>$${Number(st.revenue||0).toFixed(2)}</strong></div>
+          <div class="stat-card"><span class="stat-label">Successful</span><strong>${st.succeeded||0}</strong></div>
+          <div class="stat-card"><span class="stat-label">Failed</span><strong>${st.failed||0}</strong></div>
+          <div class="stat-card"><span class="stat-label">Avg order</span><strong>$${Number(st.avg_order||0).toFixed(2)}</strong></div>
+        </div>
+        <h3 style="margin:20px 0 10px">By payment method</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Method</th><th>Count</th><th>Revenue</th></tr></thead>
+          <tbody>${(analyticsRes.byMethod||[]).map(m=>`<tr><td>${esc(m.method||'—')}</td><td>${m.count}</td><td>$${Number(m.revenue||0).toFixed(2)}</td></tr>`).join('')||'<tr><td colspan="3">No data</td></tr>'}
+          </tbody></table></div>`;
+    } else if (tab === 'promos') {
+      panel.innerHTML = `
+        <button class="btn btn-primary btn-sm" id="add-promo" style="margin-bottom:12px">+ Promo code</button>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Used</th><th>Active</th></tr></thead>
+          <tbody>${promosRes.promos.map(p=>`<tr>
+            <td><code>${esc(p.code)}</code></td><td>${esc(p.type)}</td><td>${p.value}</td>
+            <td>${p.used_count}${p.max_uses?`/${p.max_uses}`:''}</td>
+            <td>${p.active?'Yes':'No'}</td>
+          </tr>`).join('')||'<tr><td colspan="5">No promos</td></tr>'}
+          </tbody></table></div>`;
+      $('#add-promo')?.addEventListener('click', async () => {
+        const code = prompt('Promo code (e.g. SAVE20):');
+        if (!code) return;
+        const type = prompt('Type: percent or fixed', 'percent');
+        const value = parseFloat(prompt('Value:', '10') || '0');
+        await API.post('/checkout/admin/promos', { code, type, value });
+        toast('Promo created');
+        viewOrders();
+      });
+    } else if (tab === 'methods') {
+      panel.innerHTML = `<div class="table-wrap"><table>
+        <thead><tr><th>Code</th><th>Name</th><th>Provider</th><th>Enabled</th><th></th></tr></thead>
+        <tbody>${methodsRes.methods.map(m=>`<tr>
+          <td>${esc(m.code)}</td><td>${esc(m.name)}</td><td>${esc(m.provider)}</td>
+          <td>${m.enabled?'Yes':'No'}</td>
+          <td><button class="btn btn-sm btn-secondary" data-toggle-method="${m.id}">${m.enabled?'Disable':'Enable'}</button></td>
+        </tr>`).join('')}
+        </tbody></table></div>`;
+      $$('[data-toggle-method]').forEach(b => b.onclick = async () => {
+        const row = methodsRes.methods.find(m => m.id == b.dataset.toggleMethod);
+        await API.patch(`/checkout/admin/methods/${b.dataset.toggleMethod}`, { enabled: !row.enabled });
+        viewOrders();
+      });
+    } else if (tab === 'payments') {
+      panel.innerHTML = `<div class="table-wrap"><table>
+        <thead><tr><th>ID</th><th>Customer</th><th>Plan</th><th>Method</th><th>Amount</th><th>Status</th><th>Transaction</th><th>Date</th><th></th></tr></thead>
+        <tbody>${paymentsRes.payments.map(p => `<tr>
+          <td>#${p.id}</td>
+          <td>${esc(p.customer_name||p.customer_email||'—')}</td>
+          <td>${esc(p.service_name||'—')}</td>
+          <td>${esc(p.payment_method||'—')}</td>
+          <td>$${p.amount}</td>
+          <td>${payBadge(p.status)}</td>
+          <td><code>${esc((p.transaction_id||'—').slice(0,24))}</code></td>
+          <td>${esc(p.created_at?.slice(0,16))}</td>
+          <td>${['succeeded','partially_refunded'].includes(p.status)?`<button class="btn btn-sm btn-danger" data-refund="${p.id}">Refund</button>`:'—'}</td>
+        </tr>`).join('') || '<tr><td colspan="9">No payments yet</td></tr>'}
+        </tbody></table></div>`;
+      $$('[data-refund]').forEach(b => b.onclick = async () => {
+        const partial = confirm('Click OK for full refund, Cancel to enter partial amount');
+        let amount;
+        if (!partial) {
+          amount = parseFloat(prompt('Refund amount ($):', ''));
+          if (!amount) return;
+        }
+        if (!await confirmDialog('Issue refund', 'Process this refund?')) return;
+        try {
+          await API.post(`/checkout/admin/refund/${b.dataset.refund}`, amount != null ? { amount } : {});
+          toast('Refund processed');
+          viewOrders();
+        } catch (e) { toast(e.message, 'error'); }
+      });
+    } else {
+      panel.innerHTML = `<div class="table-wrap"><table>
+        <thead><tr><th>ID</th><th>Customer</th><th>Service</th><th>Order</th><th>Payment</th><th>Amount</th><th>Date</th></tr></thead>
+        <tbody>${ordersRes.orders.map(o => `<tr>
           <td>#${o.id}</td>
           <td>${esc(o.customer_name||o.customer_email||'—')}</td>
           <td>${esc(o.service_name||'—')}</td>
-          <td><span class="badge badge-${o.status==='completed'?'success':o.status==='pending'?'warning':'muted'}">${esc(o.status)}</span></td>
+          <td>${esc(o.status)}</td>
+          <td>${payBadge(o.payment_status||'pending')}</td>
           <td>${o.amount != null ? '$'+o.amount : '—'}</td>
           <td>${esc(o.created_at?.slice(0,10))}</td>
-          <td><select data-status="${o.id}" class="status-select">
-            ${['pending','processing','completed','cancelled'].map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}
-          </select></td>
         </tr>`).join('') || '<tr><td colspan="7">No orders yet</td></tr>'}
-      </tbody></table></div>`;
-
-    $('#order-search').onchange = (e) => { main.dataset.q = e.target.value; viewOrders(); };
-    $('#export-orders')?.addEventListener('click', () => API.download('/orders/export', 'orders-export.json').catch(e => toast(e.message, 'error')));
-    $$('.status-select').forEach(sel => sel.onchange = async () => {
-      await API.patch(`/orders/${sel.dataset.status}`, { status: sel.value });
-      toast('Order updated');
-    });
+        </tbody></table></div>`;
+    }
   }
 
   async function viewUsers() {
@@ -668,7 +771,8 @@
     const main = $('#main-content');
     const { design } = await API.get('/design');
     const defaults = {
-      primary_color: '#c9a227', bg_color: '#0a0a0f', text_color: '#f5f5f7',
+      primary_color: '#E91E8C', bg_color: '#080808', text_color: '#f5f5f7',
+      accent_color: '#FF5722',
       accent_color: '#e8c547', font_family: 'Inter, system-ui, sans-serif',
       border_radius: '12px', dark_mode: 'true', animation_enabled: 'true',
       button_style: 'gold-gradient', nav_style: 'transparent', custom_css: ''

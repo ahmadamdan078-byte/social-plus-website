@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Writes js/firebase-config.js from environment variables (Render deploy).
- * Set in Render Dashboard → Environment:
+ * Writes js/firebase-config.js from environment variables (GitHub Actions / Railway).
+ * Set in GitHub Secrets or Railway environment:
  *   FIREBASE_API_KEY, FIREBASE_AUTH_DOMAIN, FIREBASE_PROJECT_ID,
  *   FIREBASE_STORAGE_BUCKET, FIREBASE_MESSAGING_SENDER_ID, FIREBASE_APP_ID
  */
@@ -18,7 +18,7 @@ const cfg = {
 };
 
 const out = `/**
- * Firebase config — auto-generated at deploy from Render environment variables.
+ * Firebase config — auto-generated at deploy from environment variables.
  * Local dev: paste keys here or run with env vars set.
  */
 window.SP_FIREBASE_CONFIG = ${JSON.stringify(cfg, null, 2)};
@@ -31,4 +31,4 @@ const target = path.join(__dirname, '..', 'js', 'firebase-config.js');
 fs.writeFileSync(target, out, 'utf8');
 
 const ready = cfg.apiKey !== 'YOUR_API_KEY' && cfg.projectId !== 'YOUR_PROJECT_ID';
-console.log(ready ? 'Firebase config injected from environment.' : 'Firebase placeholders — set Render env vars for Google sign-in.');
+console.log(ready ? 'Firebase config injected from environment.' : 'Firebase placeholders — set env vars for Google sign-in.');

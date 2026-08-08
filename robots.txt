@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://socialplus.ps/sitemap.xml
+Sitemap: https://ahmadamdan078-byte.github.io/social-plus-website/sitemap.xml

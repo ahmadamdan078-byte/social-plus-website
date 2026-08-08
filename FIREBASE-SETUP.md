@@ -16,7 +16,7 @@ Google login needs a free Firebase project. Do this **once** on your phone or co
 1. Still in Authentication → **Settings** → **Authorized domains**
 2. Make sure these exist (add if missing):
    - `localhost`
-   - `social-plus-website.onrender.com`
+   - `ahmadamdan078-byte.github.io`
    - `ahmadamdan078-byte.github.io`
 
 ## Step 4 — Copy web app keys
@@ -43,8 +43,8 @@ Push to GitHub → live site updates in ~3 minutes.
 
 ---
 
-### Optional: Render environment variables
-Instead of editing the file, set these in Render Dashboard → your site → **Environment**:
+### Optional: GitHub Actions / Railway environment variables
+Instead of editing the file, set these as GitHub Secrets (for Pages deploy) or Railway env vars:
 
 | Key | Value |
 |-----|--------|

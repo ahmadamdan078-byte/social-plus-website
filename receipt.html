@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Receipt — Social Plus</title>
+  <link rel="icon" href="assets/social-plus-logo.png">
+  <link rel="stylesheet" href="css/styles.css?v=29">
+  <link rel="stylesheet" href="css/checkout-store.css?v=29">
+</head>
+<body class="store-checkout">
+  <header class="store-header">
+    <a href="index.html" class="store-header__logo">
+      <img src="assets/logo.jpg" alt="" width="36" height="36">
+      <span>Social Plus</span>
+    </a>
+  </header>
+  <main class="store-main">
+    <article class="store-receipt" id="receipt">
+      <p class="store-receipt__status store-receipt__status--ok" id="r-status">✓ Payment successful</p>
+      <h1>Receipt</h1>
+      <dl class="store-lines" id="r-body">
+        <div><dt>Order</dt><dd id="r-order">…</dd></div>
+        <div><dt>Transaction ID</dt><dd id="r-txn">…</dd></div>
+        <div><dt>Date</dt><dd id="r-date">…</dd></div>
+        <div><dt>Product</dt><dd id="r-product">…</dd></div>
+        <div><dt>Email</dt><dd id="r-email">…</dd></div>
+        <div><dt>Subtotal</dt><dd id="r-sub">…</dd></div>
+        <div><dt>Discount</dt><dd id="r-disc">…</dd></div>
+        <div><dt>Tax</dt><dd id="r-tax">…</dd></div>
+        <div><dt>Total paid</dt><dd id="r-total">…</dd></div>
+        <div><dt>Method</dt><dd id="r-method">…</dd></div>
+      </dl>
+      <button type="button" class="store-btn store-btn--primary" id="r-print" style="width:100%;margin-top:20px">Download / Print</button>
+      <a href="index.html" class="store-btn store-btn--ghost" style="width:100%;margin-top:10px;display:block;text-align:center">Back to site</a>
+    </article>
+  </main>
+  <script src="js/api-base.js?v=29"></script>
+  <script src="js/receipt.js?v=29"></script>
+</body>
+</html>

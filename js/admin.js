@@ -498,7 +498,7 @@
 
     toggle?.addEventListener('click', async () => {
       try {
-        const health = await fetch('/api/public/health');
+        const health = await fetch(window.spApi('/api/public/health'));
         if (health.ok) {
           window.location.href = '/admin';
           return;

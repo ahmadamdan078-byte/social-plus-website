@@ -73,8 +73,34 @@
     return (window.SP_I18N[currentLang] && window.SP_I18N[currentLang][key]) || key;
   }
 
-  function setLanguage(lang) {
-    if (!window.SP_I18N[lang]) return;
+  let arLoadPromise = null;
+
+  function loadArabicAssets() {
+    if (!arLoadPromise) {
+      arLoadPromise = new Promise((resolve) => {
+        if (window.SP_I18N?.ar) {
+          resolve();
+          return;
+        }
+        const s = document.createElement('script');
+        s.src = 'js/i18n-ar.js?v=26';
+        s.onload = () => resolve();
+        s.onerror = () => resolve();
+        document.head.appendChild(s);
+      }).then(() => {
+        if (!document.getElementById('sp-ar-font')) {
+          const link = document.createElement('link');
+          link.id = 'sp-ar-font';
+          link.rel = 'stylesheet';
+          link.href = 'https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap';
+          document.head.appendChild(link);
+        }
+      });
+    }
+    return arLoadPromise;
+  }
+
+  function applyLanguage(lang) {
     currentLang = lang;
     localStorage.setItem('sp-lang', lang);
 
@@ -111,11 +137,21 @@
     if (baInput) updateBaSlider(baInput.value);
   }
 
+  async function setLanguage(lang) {
+    if (lang === 'ar') await loadArabicAssets();
+    if (!window.SP_I18N[lang]) return;
+    applyLanguage(lang);
+  }
+
   langButtons.forEach(btn => {
-    btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
+    btn.addEventListener('click', () => { setLanguage(btn.dataset.lang); });
   });
 
-  setLanguage(currentLang);
+  if (currentLang === 'ar') {
+    loadArabicAssets().then(() => applyLanguage('ar'));
+  } else {
+    applyLanguage(currentLang);
+  }
 
   window.addEventListener('sp:toast', (e) => {
     if (e.detail && e.detail.message) showToast(e.detail.message);
@@ -276,7 +312,7 @@
 
   async function submitOrder(order) {
     try {
-      const res = await fetch('/api/orders', {
+      const res = await fetch(window.spApi('/api/orders'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(order)
@@ -439,6 +475,13 @@
         card.classList.toggle('is-hidden', !show);
       });
     });
+  });
+
+  ['nav-auth-btn', 'nav-account-mobile', 'social-ai-toggle'].forEach((id) => {
+    const el = document.getElementById(id);
+    el?.addEventListener('pointerenter', () => {
+      if (window.SP_loadExtras) window.SP_loadExtras();
+    }, { once: true });
   });
 
 })();
