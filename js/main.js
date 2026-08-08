@@ -41,8 +41,8 @@
     }
     baInput.setAttribute('aria-valuenow', value);
 
-    document.querySelectorAll('.ba-slider__panel--before').forEach(panel => {
-      panel.style.width = `${sliderW}px`;
+    document.querySelectorAll('.ba-slider__before-inner').forEach((inner) => {
+      inner.style.width = `${sliderW}px`;
     });
   }
 

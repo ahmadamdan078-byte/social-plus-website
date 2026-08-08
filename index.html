@@ -303,20 +303,6 @@
           <button type="button" class="filter-btn" data-filter="video" role="tab" aria-selected="false" data-i18n="portfolio.filter.video">Video</button>
         </div>
         <div class="portfolio__grid" id="portfolio-grid">
-          <article class="portfolio-card" data-category="content">
-            <a href="https://www.instagram.com/zynex836/" class="portfolio-card__image-link" target="_blank" rel="noopener noreferrer" aria-label="View @zynex836 on Instagram">
-              <div class="portfolio-card__image portfolio-card__image--photo">
-                <img src="assets/zynex-watch.png" alt="Zynex luxury watch — product photography" width="600" height="450" loading="lazy" decoding="async">
-              </div>
-            </a>
-            <div class="portfolio-card__body">
-              <span class="portfolio-card__badge" data-i18n="portfolio.client">Client Work</span>
-              <span class="portfolio-card__category" data-i18n="portfolio.filter.content">Content</span>
-              <h3 class="portfolio-card__title" data-i18n="portfolio.zynex.title">Zynex — Luxury Product</h3>
-              <p class="portfolio-card__desc" data-i18n="portfolio.zynex.desc">Premium product visuals designed for scroll-stopping social content.</p>
-              <a href="https://www.instagram.com/zynex836/" class="btn btn--sm btn--outline" target="_blank" rel="noopener noreferrer" data-i18n="portfolio.zynex.btn">@zynex836</a>
-            </div>
-          </article>
           <article class="portfolio-card" data-category="social">
             <div class="portfolio-card__image portfolio-card__image--1">
               <div class="portfolio-card__icon" aria-hidden="true">
@@ -410,22 +396,26 @@
       <div class="container">
         <header class="section__header">
           <h2 class="section__title" data-i18n="before.title">SEE THE DIFFERENCE.</h2>
-          <p class="section__desc" data-i18n="before.desc">Drag the slider to compare profile, branding and content redesign outcomes.</p>
+          <p class="section__desc" data-i18n="before.desc">Drag the slider — plain product photo vs. premium social design for @zynex836.</p>
         </header>
         <div class="ba-slider" id="ba-slider">
-          <div class="ba-slider__after" aria-hidden="true">
-            <div class="ba-slider__panel ba-slider__panel--after">
-              <span data-i18n="before.after">After</span>
-            </div>
+          <div class="ba-slider__after">
+            <img src="assets/zynex-after.png" alt="After: Zynex luxury watch social media design" class="ba-slider__img" width="860" height="1075" loading="lazy" decoding="async">
+            <span class="ba-slider__label ba-slider__label--after" data-i18n="before.after">After</span>
           </div>
           <div class="ba-slider__before" id="ba-before">
-            <div class="ba-slider__panel ba-slider__panel--before">
-              <span data-i18n="before.before">Before</span>
+            <div class="ba-slider__before-inner" id="ba-before-inner">
+              <img src="assets/zynex-watch.png" alt="Before: plain Zynex product photo" class="ba-slider__img" width="860" height="1075" loading="lazy" decoding="async">
             </div>
+            <span class="ba-slider__label ba-slider__label--before" data-i18n="before.before">Before</span>
           </div>
           <input type="range" class="ba-slider__input" id="ba-input" min="0" max="100" value="50" aria-label="Before and after comparison slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
           <div class="ba-slider__handle" id="ba-handle" aria-hidden="true"></div>
         </div>
+        <p class="ba-slider__credit">
+          <span data-i18n="before.client">Client:</span>
+          <a href="https://www.instagram.com/zynex836/" target="_blank" rel="noopener noreferrer">@zynex836</a>
+        </p>
       </div>
     </section>
 

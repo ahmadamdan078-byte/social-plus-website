@@ -935,14 +935,22 @@ html[dir="rtl"] .service-card__link:hover::after {
 
 .ba-slider {
   position: relative;
-  max-width: 860px;
+  max-width: 520px;
   margin: 0 auto;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 4 / 5;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(233, 30, 140, 0.2);
   user-select: none;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+}
+
+.ba-slider__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .ba-slider__after,
@@ -951,42 +959,67 @@ html[dir="rtl"] .service-card__link:hover::after {
   inset: 0;
 }
 
+.ba-slider__after {
+  z-index: 1;
+}
+
 .ba-slider__before {
   z-index: 2;
   width: 50%;
   overflow: hidden;
-  border-inline-end: 2px solid var(--text-primary);
+  border-inline-end: 3px solid #fff;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
 }
 
-.ba-slider__panel {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 24px;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.8125rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.ba-slider__panel--before {
-  background: linear-gradient(145deg, #2a2a35 0%, #14141c 100%);
-  color: rgba(255, 255, 255, 0.55);
-}
-
-.ba-slider__panel--after {
-  background: linear-gradient(145deg, var(--violet) 0%, var(--blue) 100%);
-  color: white;
-}
-
-.ba-slider__before .ba-slider__panel--before {
+.ba-slider__before-inner {
   position: absolute;
   top: 0;
   left: 0;
   height: 100%;
+  overflow: hidden;
+}
+
+.ba-slider__label {
+  position: absolute;
+  bottom: 16px;
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.ba-slider__label--before {
+  left: 16px;
+  background: rgba(0, 0, 0, 0.65);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ba-slider__label--after {
+  right: 16px;
+  background: linear-gradient(135deg, #E91E8C, #FF5722);
+  color: #fff;
+}
+
+.ba-slider__credit {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+}
+
+.ba-slider__credit a {
+  color: #FF6B9D;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ba-slider__credit a:hover {
+  text-decoration: underline;
 }
 
 .ba-slider__input {
