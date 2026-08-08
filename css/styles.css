@@ -2620,6 +2620,11 @@ body.is-locked .site-shell {
   max-width: 180px;
 }
 
+.nav__user[hidden],
+.nav__auth-btn[hidden] {
+  display: none !important;
+}
+
 .nav__user-email {
   font-size: 0.75rem;
   color: var(--text-secondary);

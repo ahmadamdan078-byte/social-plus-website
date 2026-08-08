@@ -117,6 +117,10 @@
 
   setLanguage(currentLang);
 
+  window.addEventListener('sp:toast', (e) => {
+    if (e.detail && e.detail.message) showToast(e.detail.message);
+  });
+
   /* ---- Sticky header + active nav ---- */
   const sections = document.querySelectorAll('section[id]');
 
@@ -164,6 +168,8 @@
     if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
     document.body.style.overflow = '';
   }
+
+  window.SP_NAV = { close: closeMobileNav };
 
   if (navToggle && navEnd) {
     navToggle.addEventListener('click', () => {

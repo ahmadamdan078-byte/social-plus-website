@@ -6,7 +6,7 @@
   'use strict';
 
   const config = window.SP_FIREBASE_CONFIG || {};
-  const AUTH_REQUIRED = window.SP_AUTH_REQUIRED !== false;
+  const AUTH_REQUIRED = window.SP_AUTH_REQUIRED === true;
 
   function isConfigured() {
     return !!(config.apiKey && config.apiKey !== 'YOUR_API_KEY' && config.projectId && config.projectId !== 'YOUR_PROJECT_ID');
@@ -92,12 +92,26 @@
   }
 
   function updateNav(user) {
-    if (navAuthBtn) navAuthBtn.hidden = !!user;
-    if (navUser) navUser.hidden = !user;
+    const signedIn = !!user;
+    if (navAuthBtn) {
+      navAuthBtn.hidden = signedIn;
+      navAuthBtn.style.display = signedIn ? 'none' : '';
+    }
+    if (navUser) {
+      navUser.hidden = !signedIn;
+      navUser.style.display = signedIn ? '' : 'none';
+    }
     if (navUserEmail && user) {
       navUserEmail.textContent = user.displayName || user.email || 'Member';
       navUserEmail.title = user.email || '';
+    } else if (navUserEmail) {
+      navUserEmail.textContent = '';
+      navUserEmail.title = '';
     }
+  }
+
+  function notify(message) {
+    window.dispatchEvent(new CustomEvent('sp:toast', { detail: { message } }));
   }
 
   function setMode(next) {
@@ -255,15 +269,29 @@
     }
   }
 
-  async function signOut() {
-    if (auth) {
-      try {
-        await auth.signOut();
-      } catch (err) {
-        showError(mapFirebaseError(err.code));
-      }
+  async function signOut(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
     }
-    if (AUTH_REQUIRED && isConfigured()) lockSite();
+
+    window.SP_NAV?.close?.();
+
+    if (!auth || !firebaseReady) {
+      unlockSite(null);
+      closeAuthModal();
+      notify(t('auth.signout.success'));
+      return;
+    }
+
+    try {
+      await auth.signOut();
+      unlockSite(null);
+      closeAuthModal();
+      notify(t('auth.signout.success'));
+    } catch (err) {
+      notify(mapFirebaseError(err.code));
+    }
   }
 
   function initFirebase() {
@@ -325,7 +353,7 @@
   gate?.addEventListener('click', (e) => {
     if (e.target === gate && !AUTH_REQUIRED) closeAuthModal();
   });
-  navSignOut?.addEventListener('click', signOut);
+  navSignOut?.addEventListener('click', (e) => signOut(e));
 
   window.SP_AUTH = {
     signOut,
