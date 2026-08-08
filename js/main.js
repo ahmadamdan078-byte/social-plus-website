@@ -243,7 +243,7 @@
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 
-    document.querySelectorAll('.section__header, .service-card, .process-card, .portfolio-card, .benefit-card, .pricing-card, .audit__card, .instagram__card').forEach(el => {
+    document.querySelectorAll('.section__header, .service-card, .process-card, .portfolio-card, .benefit-card, .pricing-card, .audit__card, .instagram__card, .stat-strip__item, .hero-metric, .ba-slider').forEach(el => {
       el.classList.add('reveal');
       revealObserver.observe(el);
     });

@@ -5,25 +5,32 @@
    ============================================ */
 
 :root {
-  /* Brand — matches Social Plus logo (+ gradient: magenta → coral) */
+  /* Brand — matches Social Plus logo */
   --magenta: #E91E8C;
   --coral: #FF5722;
   --pink: #FF007F;
   --brand-black: #0a0a0a;
 
-  --bg-primary: #080808;
-  --bg-secondary: #0f0f0f;
-  --bg-elevated: #141414;
-  --bg-card: rgba(255, 255, 255, 0.03);
+  /* Fallback (dark) — overridden by [data-theme] in theme-system.css */
+  --bg-primary: #141820;
+  --bg-secondary: #1a2030;
+  --bg-elevated: #222838;
+  --bg-card: rgba(255, 255, 255, 0.035);
   --bg-card-hover: rgba(255, 255, 255, 0.055);
+  --bg-glass: rgba(26, 32, 48, 0.72);
 
-  --border: rgba(255, 255, 255, 0.07);
+  --border: rgba(255, 255, 255, 0.08);
   --border-hover: rgba(255, 255, 255, 0.14);
-  --border-glow: rgba(233, 30, 140, 0.4);
+  --border-glow: rgba(233, 30, 140, 0.22);
 
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.65);
-  --text-muted: rgba(255, 255, 255, 0.42);
+  --text-primary: #f0f2f8;
+  --text-secondary: rgba(240, 242, 248, 0.68);
+  --text-muted: rgba(240, 242, 248, 0.42);
+
+  --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 12px 40px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 0 48px rgba(233, 30, 140, 0.08);
 
   /* Legacy names → logo colors (keeps existing rules working) */
   --blue: var(--magenta);
@@ -2195,7 +2202,7 @@ html[dir="rtl"] .service-card::before {
   inset-inline-start: 20px;
 }
 
-html[dir="rtl"] .ba-slider__before .ba-slider__panel--before {
+html[dir="rtl"] .ba-slider__before-inner {
   left: auto;
   right: 0;
 }
