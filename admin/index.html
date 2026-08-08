@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Control Center — Social Plus</title>
+  <link rel="icon" href="../assets/brand-circle.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin-app.css">
+</head>
+<body>
+  <div id="app">
+    <div id="login-screen" class="login-screen">
+      <div class="login-card">
+        <div class="login-brand">
+          <img src="../assets/brand-circle.png" alt="Social Plus" width="48" height="48">
+          <h1>Admin Control Center</h1>
+          <p>Social Plus — secure management portal</p>
+        </div>
+        <form id="login-form">
+          <label>Email<input type="email" id="login-email" required autocomplete="username"></label>
+          <label>Password<input type="password" id="login-password" required autocomplete="current-password"></label>
+          <label id="totp-wrap" hidden>2FA Code<input type="text" id="login-totp" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></label>
+          <button type="submit" class="btn btn-primary" id="login-btn">Sign In</button>
+          <p class="login-error" id="login-error" hidden></p>
+        </form>
+      </div>
+    </div>
+
+    <div id="dashboard" class="dashboard" hidden>
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+          <img src="../assets/brand-circle.png" alt="" width="32" height="32">
+          <span>Social Plus</span>
+        </div>
+        <nav class="sidebar-nav" id="sidebar-nav"></nav>
+        <div class="sidebar-footer">
+          <a href="/" target="_blank" rel="noopener" class="sidebar-link">View Website ↗</a>
+          <button type="button" class="sidebar-link btn-text" id="logout-btn">Sign Out</button>
+        </div>
+      </aside>
+
+      <div class="main-wrap">
+        <header class="topbar">
+          <button type="button" class="icon-btn mobile-menu" id="menu-toggle" aria-label="Menu">☰</button>
+          <h2 id="page-title">Dashboard</h2>
+          <div class="topbar-actions">
+            <span class="admin-badge" id="admin-badge"></span>
+          </div>
+        </header>
+
+        <main class="main-content" id="main-content"></main>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+  <div id="modal-root"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/admin-app.js"></script>
+</body>
+</html>

@@ -6,3 +6,10 @@
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+node_modules/
+data/*.db
+data/*.db-*
+data/.jwt_secret
+uploads/*
+!uploads/.gitkeep
+!data/.gitkeep

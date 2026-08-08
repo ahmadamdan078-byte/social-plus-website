@@ -1,37 +1,22 @@
 services:
   - type: web
     name: social-plus-website
-    runtime: static
+    runtime: node
     plan: free
     branch: main
     autoDeploy: true
-    buildCommand: node scripts/inject-firebase-config.js
-    staticPublishPath: .
-    headers:
-      - path: /assets/*
-        name: Cache-Control
-        value: public, max-age=86400
-      - path: /css/*
-        name: Cache-Control
-        value: public, max-age=86400
-      - path: /js/*
-        name: Cache-Control
-        value: public, max-age=86400
-      - path: /index.html
-        name: Cache-Control
-        value: no-cache, no-store, must-revalidate
-      - path: /*
-        name: X-Frame-Options
-        value: SAMEORIGIN
-      - path: /*
-        name: X-Content-Type-Options
-        value: nosniff
-      - path: /*
-        name: Referrer-Policy
-        value: strict-origin-when-cross-origin
-      - path: /*
-        name: Permissions-Policy
-        value: camera=(), microphone=(), geolocation=()
-      - path: /*
-        name: X-XSS-Protection
-        value: 1; mode=block
+    buildCommand: npm install && node scripts/inject-firebase-config.js
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SUPER_ADMIN_EMAIL
+        value: hamdanmustafa840@gmail.com
+      - key: SUPER_ADMIN_PASSWORD
+        sync: false
+    disk:
+      name: social-plus-data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1

@@ -1,15 +1,27 @@
 #!/bin/bash
 cd "$(dirname "$0")"
-PORT=5500
 
+if ! command -v node >/dev/null 2>&1; then
+  echo "Node.js is required. Install from https://nodejs.org"
+  exit 1
+fi
+
+if [ ! -d node_modules ]; then
+  echo "Installing dependencies..."
+  npm install
+fi
+
+PORT="${PORT:-5500}"
 while lsof -i :"$PORT" >/dev/null 2>&1; do
   PORT=$((PORT + 1))
 done
 
+export PORT
 echo ""
-echo "  Social Plus website"
-echo "  Open in your browser: http://localhost:$PORT"
+echo "  Social Plus — website + Admin Control Center"
+echo "  Website:  http://localhost:$PORT"
+echo "  Admin:    http://localhost:$PORT/admin"
 echo "  Press Ctrl+C to stop"
 echo ""
 
-python3 -m http.server "$PORT"
+node server.js

@@ -496,7 +496,14 @@
     window.addEventListener('sp:authchange', e => setAdmin(e.detail?.user));
     window.SP_LOCAL_AUTH?.onChange?.(u => setAdmin(u));
 
-    toggle?.addEventListener('click', () => {
+    toggle?.addEventListener('click', async () => {
+      try {
+        const health = await fetch('/api/public/health');
+        if (health.ok) {
+          window.location.href = '/admin';
+          return;
+        }
+      } catch {}
       if (isPanelOpen()) closePanel();
       else openPanel();
     });

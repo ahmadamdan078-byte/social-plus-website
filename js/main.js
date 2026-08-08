@@ -274,6 +274,21 @@
     window.open(url, '_blank', 'noopener,noreferrer');
   }
 
+  async function submitOrder(order) {
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(order)
+      });
+      if (res.ok && window.SP_trackConversion) {
+        window.SP_trackConversion({ type: order.service_name || 'contact' });
+      }
+    } catch {
+      /* API unavailable on static-only hosting */
+    }
+  }
+
   /* ---- Contact form ---- */
   if (contactForm) {
     bindFormValidation(contactForm);
@@ -323,6 +338,15 @@
         'Message:',
         payload.message
       ];
+
+      submitOrder({
+        customer_name: payload.name,
+        customer_email: payload.email,
+        customer_phone: payload.phone,
+        service_name: payload.service,
+        notes: payload.message,
+        status: 'pending'
+      });
 
       contactForm.reset();
       showToast(t('toast.contact'));
@@ -374,6 +398,14 @@
         `WhatsApp: ${payload.whatsapp}`,
         `Business: ${payload.business}`
       ];
+
+      submitOrder({
+        customer_name: payload.name,
+        customer_phone: payload.whatsapp,
+        service_name: 'Free Instagram Audit',
+        notes: `Instagram: ${payload.username}, Business: ${payload.business}`,
+        status: 'pending'
+      });
 
       auditForm.reset();
       if (auditSuccess) auditSuccess.hidden = false;
