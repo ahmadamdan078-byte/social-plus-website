@@ -31,13 +31,14 @@
 </head>
 <body>
 
-  <!-- Auth gate — must sign in to access site when Firebase is configured -->
+  <!-- Auth modal — optional sign in (site is open to everyone) -->
   <div class="auth-gate" id="auth-gate" role="dialog" aria-modal="true" aria-labelledby="auth-title" hidden>
     <div class="auth-gate__inner">
       <div class="auth-card">
+        <button type="button" class="auth-card__close" id="auth-close" aria-label="Close">&times;</button>
         <img src="assets/brand-circle.png" alt="" class="auth-card__logo" width="56" height="56">
         <h2 class="auth-card__title" id="auth-title" data-i18n="auth.title">Welcome to Social Plus</h2>
-        <p class="auth-card__desc" data-i18n="auth.desc">Sign in or create an account to continue.</p>
+        <p class="auth-card__desc" data-i18n="auth.desc">Optional — sign in with Google, Apple, or email.</p>
 
         <div class="auth-tabs" role="tablist" aria-label="Authentication mode">
           <button type="button" class="auth-tabs__btn is-active" data-auth-tab="signin" role="tab" aria-selected="true" data-i18n="auth.signin.tab">Sign In</button>
@@ -74,7 +75,7 @@
           <button type="submit" class="btn btn--primary btn--full" id="auth-submit" data-i18n="auth.signin.submit">Sign In</button>
         </form>
 
-        <p class="auth-note" data-i18n="auth.note">Wrong email or password? You cannot access the site until credentials are valid.</p>
+        <p class="auth-note" data-i18n="auth.note">Invalid credentials are rejected. Browse the site freely — sign in is optional.</p>
       </div>
     </div>
   </div>

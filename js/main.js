@@ -335,12 +335,11 @@
         message: data.message.trim()
       };
 
-      if (window.SP_DB && window.SP_DB.isReady()) {
+      if (window.SP_DB && window.SP_DB.isReady() && window.SP_SECURITY && window.SP_SECURITY.isAuthenticated()) {
         try {
           await window.SP_DB.saveContact(payload);
         } catch (err) {
-          showToast(t('error.saveFailed'));
-          return;
+          console.warn('Database save skipped:', err);
         }
       }
 
@@ -390,12 +389,11 @@
         business: data.business.trim()
       };
 
-      if (window.SP_DB && window.SP_DB.isReady()) {
+      if (window.SP_DB && window.SP_DB.isReady() && window.SP_SECURITY && window.SP_SECURITY.isAuthenticated()) {
         try {
           await window.SP_DB.saveAudit(payload);
         } catch (err) {
-          showToast(t('error.saveFailed'));
-          return;
+          console.warn('Database save skipped:', err);
         }
       }
 

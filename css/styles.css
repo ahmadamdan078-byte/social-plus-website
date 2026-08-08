@@ -2419,12 +2419,34 @@ body.is-locked .site-shell {
 }
 
 .auth-card {
+  position: relative;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   padding: clamp(24px, 5vw, 36px);
   box-shadow: var(--glow-card);
   text-align: center;
+}
+
+.auth-card__close {
+  position: absolute;
+  top: 14px;
+  inset-inline-end: 14px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--text-muted);
+  border-radius: 50%;
+  transition: color var(--transition), background var(--transition);
+}
+
+.auth-card__close:hover {
+  color: var(--text-primary);
+  background: var(--bg-card);
 }
 
 .auth-card__logo {

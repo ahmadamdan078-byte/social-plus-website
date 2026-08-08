@@ -61,13 +61,34 @@
 
   function unlockSite(user) {
     document.body.classList.remove('is-locked');
-    document.body.classList.add('is-authenticated');
+    if (user) {
+      document.body.classList.add('is-authenticated');
+    } else {
+      document.body.classList.remove('is-authenticated');
+    }
     if (gate) {
       gate.hidden = true;
       gate.setAttribute('aria-hidden', 'true');
     }
     updateNav(user);
     document.body.style.overflow = '';
+  }
+
+  function openAuthModal() {
+    if (!gate) return;
+    gate.hidden = false;
+    gate.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('is-locked');
+    clearError();
+    authEmail?.focus();
+  }
+
+  function closeAuthModal() {
+    if (!gate) return;
+    gate.hidden = true;
+    gate.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('is-locked');
+    clearError();
   }
 
   function updateNav(user) {
@@ -247,8 +268,7 @@
 
   function initFirebase() {
     if (!isConfigured()) {
-      if (gate) gate.hidden = true;
-      document.body.classList.remove('is-locked');
+      closeAuthModal();
       if (navAuthBtn) navAuthBtn.hidden = true;
       return;
     }
@@ -266,6 +286,9 @@
     firebaseReady = true;
 
     if (window.SP_DB) window.SP_DB.init();
+
+    if (navAuthBtn) navAuthBtn.hidden = false;
+    closeAuthModal();
 
     auth.getRedirectResult().catch(err => {
       if (err.code !== 'auth/no-auth-event') showError(mapFirebaseError(err.code));
@@ -297,20 +320,19 @@
 
   document.getElementById('auth-google')?.addEventListener('click', () => signInWithProvider('google'));
   document.getElementById('auth-apple')?.addEventListener('click', () => signInWithProvider('apple'));
-  navAuthBtn?.addEventListener('click', () => {
-    if (gate) {
-      gate.hidden = false;
-      gate.setAttribute('aria-hidden', 'false');
-      document.body.classList.add('is-locked');
-      authEmail?.focus();
-    }
+  navAuthBtn?.addEventListener('click', openAuthModal);
+  document.getElementById('auth-close')?.addEventListener('click', closeAuthModal);
+  gate?.addEventListener('click', (e) => {
+    if (e.target === gate && !AUTH_REQUIRED) closeAuthModal();
   });
   navSignOut?.addEventListener('click', signOut);
 
   window.SP_AUTH = {
     signOut,
     isConfigured,
-    getUser: () => (auth ? auth.currentUser : null)
+    getUser: () => (auth ? auth.currentUser : null),
+    openAuthModal,
+    closeAuthModal
   };
 
   setMode('signin');

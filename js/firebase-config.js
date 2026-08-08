@@ -29,8 +29,8 @@ window.SP_FIREBASE_CONFIG = {
   appId: 'YOUR_APP_ID'
 };
 
-/** Site locked until valid sign-in when Firebase is configured */
-window.SP_AUTH_REQUIRED = true;
+/** Site locked until sign-in — set false so anyone can browse; Sign In is optional */
+window.SP_AUTH_REQUIRED = false;
 
 /** Save form submissions to Firestore (requires auth + rules) */
 window.SP_DB_ENABLED = true;

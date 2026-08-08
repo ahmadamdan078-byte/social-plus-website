@@ -6,8 +6,9 @@
   'use strict';
 
   function requireAuthForForms() {
-    if (!window.SP_AUTH || !window.SP_AUTH.isConfigured()) return false;
-    return true;
+    return window.SP_AUTH_REQUIRED === true
+      && window.SP_AUTH
+      && window.SP_AUTH.isConfigured();
   }
 
   function isAuthenticated() {
