@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=15">
+  <link rel="stylesheet" href="css/styles.css?v=17">
   <script>
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
@@ -40,6 +40,7 @@
         <h2 class="auth-card__title" id="auth-title" data-i18n="auth.title">Welcome to Social Plus</h2>
         <p class="auth-card__desc" data-i18n="auth.desc">Optional — sign in with Google, Apple, or email.</p>
 
+        <div id="auth-main">
         <div class="auth-tabs" role="tablist" aria-label="Authentication mode">
           <button type="button" class="auth-tabs__btn is-active" data-auth-tab="signin" role="tab" aria-selected="true" data-i18n="auth.signin.tab">Sign In</button>
           <button type="button" class="auth-tabs__btn" data-auth-tab="signup" role="tab" aria-selected="false" data-i18n="auth.signup.tab">Sign Up</button>
@@ -71,11 +72,27 @@
             <label for="auth-confirm" data-i18n="auth.confirm">Confirm Password</label>
             <input type="password" id="auth-confirm" name="confirm" autocomplete="new-password" minlength="8">
           </div>
-          <p class="auth-error" id="auth-error" role="alert" hidden></p>
           <button type="submit" class="btn btn--primary btn--full" id="auth-submit" data-i18n="auth.signin.submit">Sign In</button>
         </form>
 
         <p class="auth-note" data-i18n="auth.note">Invalid credentials are rejected. Browse the site freely — sign in is optional.</p>
+        </div>
+
+        <p class="auth-error" id="auth-error" role="alert" hidden></p>
+
+        <div class="auth-oauth-panel" id="auth-oauth-panel" hidden>
+          <p class="auth-oauth-panel__title" id="auth-oauth-panel-title" data-i18n="auth.google.prompt">Sign in with your Google account</p>
+          <div class="form-group">
+            <label for="auth-oauth-email" data-i18n="auth.email">Email</label>
+            <input type="email" id="auth-oauth-email" autocomplete="email" inputmode="email" placeholder="you@gmail.com">
+          </div>
+          <div class="form-group">
+            <label for="auth-oauth-name" data-i18n="auth.google.name">Your name (optional)</label>
+            <input type="text" id="auth-oauth-name" autocomplete="name" maxlength="80">
+          </div>
+          <button type="button" class="btn btn--primary btn--full" id="auth-oauth-continue" data-i18n="auth.google.continue">Continue</button>
+          <button type="button" class="auth-oauth-panel__back" id="auth-oauth-back" data-i18n="auth.google.back">← Back</button>
+        </div>
       </div>
     </div>
   </div>
@@ -669,11 +686,12 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="js/i18n.js?v=14" defer></script>
+  <script src="js/i18n.js?v=17" defer></script>
   <script src="js/firebase-config.js?v=14" defer></script>
   <script src="js/security.js?v=14" defer></script>
   <script src="js/db.js?v=14" defer></script>
-  <script src="js/auth.js?v=16" defer></script>
+  <script src="js/local-auth.js?v=17" defer></script>
+  <script src="js/auth.js?v=17" defer></script>
   <script src="js/social-ai-config.js?v=14" defer></script>
   <script src="js/social-ai.js?v=15" defer></script>
   <script src="js/main.js?v=14" defer></script>

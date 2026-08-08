@@ -1,19 +1,24 @@
 /**
- * Social Plus — Authentication (Firebase)
- * Google · Apple · Email/Password with access gate
+ * Social Plus — Authentication
+ * Firebase when configured · Local auth fallback (no setup required)
  */
 (function () {
   'use strict';
 
   const config = window.SP_FIREBASE_CONFIG || {};
   const AUTH_REQUIRED = window.SP_AUTH_REQUIRED === true;
+  const useLocalAuth = !(config.apiKey && config.apiKey !== 'YOUR_API_KEY' && config.projectId && config.projectId !== 'YOUR_PROJECT_ID');
 
   function isConfigured() {
-    return !!(config.apiKey && config.apiKey !== 'YOUR_API_KEY' && config.projectId && config.projectId !== 'YOUR_PROJECT_ID');
+    return !useLocalAuth;
   }
 
   const gate = document.getElementById('auth-gate');
-  const siteShell = document.getElementById('site-shell');
+  const authMain = document.getElementById('auth-main');
+  const authOauthPanel = document.getElementById('auth-oauth-panel');
+  const authOauthTitle = document.getElementById('auth-oauth-panel-title');
+  const authOauthEmail = document.getElementById('auth-oauth-email');
+  const authOauthName = document.getElementById('auth-oauth-name');
   const authError = document.getElementById('auth-error');
   const authForm = document.getElementById('auth-form');
   const authEmail = document.getElementById('auth-email');
@@ -33,10 +38,16 @@
   let auth = null;
   let firebaseReady = false;
   let initPromise = null;
+  let oauthProvider = 'google.com';
 
   function t(key) {
     const lang = localStorage.getItem('sp-lang') || 'en';
     return (window.SP_I18N && window.SP_I18N[lang] && window.SP_I18N[lang][key]) || key;
+  }
+
+  function getCurrentUser() {
+    if (useLocalAuth && window.SP_LOCAL_AUTH) return window.SP_LOCAL_AUTH.getUser();
+    return auth ? auth.currentUser : null;
   }
 
   function showError(message) {
@@ -64,17 +75,15 @@
 
   function unlockSite(user) {
     document.body.classList.remove('is-locked');
-    if (user) {
-      document.body.classList.add('is-authenticated');
-    } else {
-      document.body.classList.remove('is-authenticated');
-    }
+    if (user) document.body.classList.add('is-authenticated');
+    else document.body.classList.remove('is-authenticated');
     if (gate) {
       gate.hidden = true;
       gate.setAttribute('aria-hidden', 'true');
     }
     updateNav(user);
     document.body.style.overflow = '';
+    hideOauthPanel();
   }
 
   function openAuthModal() {
@@ -83,8 +92,9 @@
     gate.setAttribute('aria-hidden', 'false');
     document.body.classList.add('is-locked');
     clearError();
+    hideOauthPanel();
     authEmail?.focus();
-    if (isConfigured()) ensureFirebaseReady();
+    if (!useLocalAuth) ensureFirebaseReady();
   }
 
   function closeAuthModal() {
@@ -93,6 +103,25 @@
     gate.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('is-locked');
     clearError();
+    hideOauthPanel();
+  }
+
+  function showOauthPanel(providerId) {
+    oauthProvider = providerId === 'apple' ? 'apple.com' : 'google.com';
+    if (authMain) authMain.hidden = true;
+    if (authOauthPanel) authOauthPanel.hidden = false;
+    if (authOauthTitle) {
+      authOauthTitle.textContent = t(providerId === 'apple' ? 'auth.apple.prompt' : 'auth.google.prompt');
+    }
+    if (authOauthEmail) authOauthEmail.value = authEmail?.value.trim() || '';
+    if (authOauthName) authOauthName.value = '';
+    clearError();
+    authOauthEmail?.focus();
+  }
+
+  function hideOauthPanel() {
+    if (authMain) authMain.hidden = false;
+    if (authOauthPanel) authOauthPanel.hidden = true;
   }
 
   function userInitial(user) {
@@ -123,16 +152,12 @@
       navUserEmail.textContent = '';
       navUserEmail.title = '';
     }
-    if (navUserAvatar) {
-      navUserAvatar.textContent = userInitial(user);
-    }
+    if (navUserAvatar) navUserAvatar.textContent = userInitial(user);
   }
 
   function handleAccountAction() {
-    const user = auth ? auth.currentUser : null;
-    if (user) {
-      signOut();
-    } else {
+    if (getCurrentUser()) signOut();
+    else {
       window.SP_NAV?.close?.();
       openAuthModal();
     }
@@ -160,13 +185,9 @@
   }
 
   function validatePassword(password, isSignup) {
-    if (!password || password.length < 8) {
-      return t('auth.error.passwordLength');
-    }
-    if (isSignup) {
-      if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
-        return t('auth.error.passwordWeak');
-      }
+    if (!password || password.length < 8) return t('auth.error.passwordLength');
+    if (isSignup && (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password))) {
+      return t('auth.error.passwordWeak');
     }
     return null;
   }
@@ -187,22 +208,17 @@
       authEmail?.focus();
       return false;
     }
-
     const passErr = validatePassword(password, mode === 'signup');
     if (passErr) {
       showError(passErr);
       authPassword?.focus();
       return false;
     }
-
-    if (mode === 'signup') {
-      if (password !== confirm) {
-        showError(t('auth.error.passwordMatch'));
-        authConfirm?.focus();
-        return false;
-      }
+    if (mode === 'signup' && password !== confirm) {
+      showError(t('auth.error.passwordMatch'));
+      authConfirm?.focus();
+      return false;
     }
-
     return true;
   }
 
@@ -227,30 +243,78 @@
 
   function setLoading(loading) {
     if (authSubmit) authSubmit.disabled = loading;
-    document.querySelectorAll('.auth-oauth-btn, [data-auth-tab]').forEach(el => {
+    document.querySelectorAll('.auth-oauth-btn, [data-auth-tab], #auth-oauth-continue').forEach(el => {
       el.disabled = loading;
     });
   }
 
+  async function handleLocalEmailAuth() {
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+    try {
+      if (mode === 'signup') await window.SP_LOCAL_AUTH.signUpEmail(email, password);
+      else await window.SP_LOCAL_AUTH.signInEmail(email, password);
+      unlockSite(getCurrentUser());
+      closeAuthModal();
+      notify(t('auth.signin.success'));
+    } catch (err) {
+      showError(mapFirebaseError(err.message || err.code));
+    }
+  }
+
   async function handleEmailAuth(e) {
     e.preventDefault();
-    if (!(await ensureFirebaseReady())) return;
     if (!validateForm()) return;
 
     setLoading(true);
     clearError();
 
+    if (useLocalAuth) {
+      await handleLocalEmailAuth();
+      setLoading(false);
+      return;
+    }
+
+    if (!(await ensureFirebaseReady())) {
+      setLoading(false);
+      return;
+    }
+
     const email = authEmail.value.trim();
     const password = authPassword.value;
 
     try {
-      if (mode === 'signup') {
-        await auth.createUserWithEmailAndPassword(email, password);
-      } else {
-        await auth.signInWithEmailAndPassword(email, password);
-      }
+      if (mode === 'signup') await auth.createUserWithEmailAndPassword(email, password);
+      else await auth.signInWithEmailAndPassword(email, password);
     } catch (err) {
       showError(mapFirebaseError(err.code));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleLocalOauthContinue() {
+    const email = authOauthEmail?.value.trim() || '';
+    const name = authOauthName?.value.trim() || '';
+    if (!email) {
+      showError(t('auth.error.emailRequired'));
+      authOauthEmail?.focus();
+      return;
+    }
+    if (!validateEmail(email)) {
+      showError(t('auth.error.emailInvalid'));
+      authOauthEmail?.focus();
+      return;
+    }
+    setLoading(true);
+    clearError();
+    try {
+      window.SP_LOCAL_AUTH.signInOAuth(email, name, oauthProvider);
+      unlockSite(getCurrentUser());
+      closeAuthModal();
+      notify(t('auth.signin.success'));
+    } catch (err) {
+      showError(t('auth.error.generic'));
     } finally {
       setLoading(false);
     }
@@ -261,6 +325,11 @@
   }
 
   async function signInWithProvider(providerId) {
+    if (useLocalAuth) {
+      showOauthPanel(providerId);
+      return;
+    }
+
     if (!(await ensureFirebaseReady())) return;
 
     setLoading(true);
@@ -284,11 +353,8 @@
     }
 
     try {
-      if (useRedirect()) {
-        await auth.signInWithRedirect(provider);
-      } else {
-        await auth.signInWithPopup(provider);
-      }
+      if (useRedirect()) await auth.signInWithRedirect(provider);
+      else await auth.signInWithPopup(provider);
     } catch (err) {
       showError(mapFirebaseError(err.code));
       setLoading(false);
@@ -302,6 +368,14 @@
     }
 
     window.SP_NAV?.close?.();
+
+    if (useLocalAuth && window.SP_LOCAL_AUTH) {
+      window.SP_LOCAL_AUTH.signOut();
+      unlockSite(null);
+      closeAuthModal();
+      notify(t('auth.signout.success'));
+      return;
+    }
 
     if (!auth || !firebaseReady) {
       unlockSite(null);
@@ -340,12 +414,8 @@
   }
 
   async function ensureFirebaseReady() {
+    if (useLocalAuth) return true;
     if (firebaseReady && auth) return true;
-
-    if (!isConfigured()) {
-      showError(t('auth.error.notConfigured'));
-      return false;
-    }
 
     try {
       await initFirebase();
@@ -355,88 +425,74 @@
       return false;
     }
 
-    if (!firebaseReady || !auth) {
-      showError(t('auth.error.generic'));
-      return false;
-    }
-
-    return true;
+    return !!(firebaseReady && auth);
   }
 
   async function initFirebase() {
+    if (useLocalAuth) return;
     if (initPromise) return initPromise;
 
     initPromise = (async () => {
-    closeAuthModal();
-
-    /* Always show Sign In — Firebase optional for browsing */
-    if (navAuthBtn) {
-      navAuthBtn.hidden = false;
-      navAuthBtn.style.display = '';
-    }
-
-    if (!isConfigured()) {
-      return;
-    }
-
-    try {
-      await loadFirebaseSdk();
-    } catch (err) {
-      console.error('Firebase SDK not loaded', err);
-      throw err;
-    }
-
-    if (typeof window.firebase === 'undefined') {
-      console.error('Firebase SDK not loaded');
-      return;
-    }
-
-    if (!window.firebase.apps.length) {
-      window.firebase.initializeApp(config);
-    }
-
-    auth = window.firebase.auth();
-    firebaseReady = true;
-
-    if (window.SP_DB) window.SP_DB.init();
-
-    if (navAuthBtn) navAuthBtn.hidden = false;
-
-    closeAuthModal();
-
-    auth.getRedirectResult().catch(err => {
-      if (err.code !== 'auth/no-auth-event') showError(mapFirebaseError(err.code));
-    }).finally(() => setLoading(false));
-
-    auth.onAuthStateChanged(async user => {
-      if (user) {
-        if (window.SP_DB && window.SP_DB.ensureUserProfile) {
-          try {
-            await window.SP_DB.ensureUserProfile(user);
-          } catch (err) {
-            console.error('Profile sync failed:', err);
-          }
-        }
-        unlockSite(user);
-      } else if (AUTH_REQUIRED) {
-        lockSite();
-      } else {
-        unlockSite(null);
+      if (navAuthBtn) {
+        navAuthBtn.hidden = false;
+        navAuthBtn.style.display = '';
       }
-    });
+
+      try {
+        await loadFirebaseSdk();
+      } catch (err) {
+        console.error('Firebase SDK not loaded', err);
+        throw err;
+      }
+
+      if (typeof window.firebase === 'undefined') return;
+
+      if (!window.firebase.apps.length) window.firebase.initializeApp(config);
+
+      auth = window.firebase.auth();
+      firebaseReady = true;
+
+      if (window.SP_DB) window.SP_DB.init();
+
+      auth.getRedirectResult().catch(err => {
+        if (err.code !== 'auth/no-auth-event') showError(mapFirebaseError(err.code));
+      }).finally(() => setLoading(false));
+
+      auth.onAuthStateChanged(async user => {
+        if (user) {
+          if (window.SP_DB?.ensureUserProfile) {
+            try { await window.SP_DB.ensureUserProfile(user); } catch (err) { console.error(err); }
+          }
+          unlockSite(user);
+        } else if (AUTH_REQUIRED) lockSite();
+        else unlockSite(null);
+      });
     })();
 
     return initPromise;
   }
 
-  authTabs.forEach(tab => {
-    tab.addEventListener('click', () => setMode(tab.dataset.authTab));
-  });
+  function initLocalAuth() {
+    if (!window.SP_LOCAL_AUTH) return;
+    const user = window.SP_LOCAL_AUTH.init();
+    if (navAuthBtn) {
+      navAuthBtn.hidden = !!user;
+      navAuthBtn.style.display = user ? 'none' : '';
+    }
+    window.SP_LOCAL_AUTH.onChange(u => updateNav(u));
+    if (user) unlockSite(user);
+    else if (AUTH_REQUIRED) lockSite();
+    else updateNav(null);
+  }
 
+  authTabs.forEach(tab => tab.addEventListener('click', () => setMode(tab.dataset.authTab)));
   if (authForm) authForm.addEventListener('submit', handleEmailAuth);
 
   document.getElementById('auth-google')?.addEventListener('click', () => signInWithProvider('google'));
   document.getElementById('auth-apple')?.addEventListener('click', () => signInWithProvider('apple'));
+  document.getElementById('auth-oauth-continue')?.addEventListener('click', handleLocalOauthContinue);
+  document.getElementById('auth-oauth-back')?.addEventListener('click', hideOauthPanel);
+
   navAuthBtn?.addEventListener('click', openAuthModal);
   navAccountMobile?.addEventListener('click', handleAccountAction);
   document.getElementById('auth-close')?.addEventListener('click', closeAuthModal);
@@ -448,7 +504,8 @@
   window.SP_AUTH = {
     signOut,
     isConfigured,
-    getUser: () => (auth ? auth.currentUser : null),
+    useLocalAuth: () => useLocalAuth,
+    getUser: getCurrentUser,
     openAuthModal,
     closeAuthModal
   };
@@ -456,19 +513,14 @@
   setMode('signin');
   updateNav(null);
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bootAuth);
-  } else {
-    bootAuth();
+  function bootAuth() {
+    if (useLocalAuth) initLocalAuth();
+    else if ('requestIdleCallback' in window) requestIdleCallback(() => initFirebase(), { timeout: 2500 });
+    else initFirebase();
   }
 
-  function bootAuth() {
-    if (isConfigured() && 'requestIdleCallback' in window) {
-      requestIdleCallback(() => initFirebase(), { timeout: 2500 });
-    } else {
-      initFirebase();
-    }
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootAuth);
+  else bootAuth();
 
   window.addEventListener('sp:langchange', () => setMode(mode));
 })();

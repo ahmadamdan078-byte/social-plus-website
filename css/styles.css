@@ -2617,7 +2617,7 @@ body.is-locked .site-shell {
   border: 1px solid rgba(248, 113, 113, 0.25);
   border-radius: var(--radius-sm);
   padding: 10px 12px;
-  margin-bottom: 14px;
+  margin: 12px 0 0;
   line-height: 1.5;
 }
 
@@ -2626,6 +2626,36 @@ body.is-locked .site-shell {
   font-size: 0.75rem;
   color: var(--text-muted);
   line-height: 1.55;
+}
+
+.auth-oauth-panel {
+  text-align: left;
+}
+
+.auth-oauth-panel__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+.auth-oauth-panel__back {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.auth-oauth-panel__back:hover {
+  color: var(--text-primary);
 }
 
 /* ---- Nav account ---- */
