@@ -32,6 +32,7 @@
   let mode = 'signin';
   let auth = null;
   let firebaseReady = false;
+  let initPromise = null;
 
   function t(key) {
     const lang = localStorage.getItem('sp-lang') || 'en';
@@ -83,6 +84,7 @@
     document.body.classList.add('is-locked');
     clearError();
     authEmail?.focus();
+    if (isConfigured()) ensureFirebaseReady();
   }
 
   function closeAuthModal() {
@@ -217,6 +219,7 @@
       'auth/cancelled-popup-request': 'auth.error.popupClosed',
       'auth/account-exists-with-different-credential': 'auth.error.accountExists',
       'auth/operation-not-allowed': 'auth.error.providerDisabled',
+      'auth/unauthorized-domain': 'auth.error.unauthorizedDomain',
       'auth/network-request-failed': 'auth.error.network'
     };
     return t(map[code] || 'auth.error.generic');
@@ -231,10 +234,7 @@
 
   async function handleEmailAuth(e) {
     e.preventDefault();
-    if (!firebaseReady || !auth) {
-      showError(t('auth.error.notConfigured'));
-      return;
-    }
+    if (!(await ensureFirebaseReady())) return;
     if (!validateForm()) return;
 
     setLoading(true);
@@ -261,10 +261,7 @@
   }
 
   async function signInWithProvider(providerId) {
-    if (!firebaseReady || !auth) {
-      showError(t('auth.error.notConfigured'));
-      return;
-    }
+    if (!(await ensureFirebaseReady())) return;
 
     setLoading(true);
     clearError();
@@ -274,6 +271,9 @@
 
     if (providerId === 'google') {
       provider = new firebase.auth.GoogleAuthProvider();
+      provider.addScope('email');
+      provider.addScope('profile');
+      provider.setCustomParameters({ prompt: 'select_account' });
     } else if (providerId === 'apple') {
       provider = new firebase.auth.OAuthProvider('apple.com');
       provider.addScope('email');
@@ -339,7 +339,34 @@
     })), Promise.resolve());
   }
 
+  async function ensureFirebaseReady() {
+    if (firebaseReady && auth) return true;
+
+    if (!isConfigured()) {
+      showError(t('auth.error.notConfigured'));
+      return false;
+    }
+
+    try {
+      await initFirebase();
+    } catch (err) {
+      console.error('Firebase init failed:', err);
+      showError(t('auth.error.generic'));
+      return false;
+    }
+
+    if (!firebaseReady || !auth) {
+      showError(t('auth.error.generic'));
+      return false;
+    }
+
+    return true;
+  }
+
   async function initFirebase() {
+    if (initPromise) return initPromise;
+
+    initPromise = (async () => {
     closeAuthModal();
 
     /* Always show Sign In — Firebase optional for browsing */
@@ -356,7 +383,7 @@
       await loadFirebaseSdk();
     } catch (err) {
       console.error('Firebase SDK not loaded', err);
-      return;
+      throw err;
     }
 
     if (typeof window.firebase === 'undefined') {
@@ -397,6 +424,9 @@
         unlockSite(null);
       }
     });
+    })();
+
+    return initPromise;
   }
 
   authTabs.forEach(tab => {

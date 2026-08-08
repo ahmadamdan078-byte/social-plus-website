@@ -6,10 +6,11 @@
  * 2. Build → Firestore Database → Create (Production mode)
  * 3. Authentication → Sign-in method → Enable Email, Google, Apple
  * 4. Project Settings → Your apps → Web → copy config below
- * 5. Authentication → Settings → Authorized domains → add:
+ * 5. Authentication → Settings → Authorized domains → add ALL of these:
  *    - localhost
  *    - social-plus-website.onrender.com
- *    - your custom domain
+ *    - ahmadamdan078-byte.github.io
+ *    - your custom domain (e.g. socialplus.ps)
  * 6. Deploy security rules (protects database):
  *    npm install -g firebase-tools
  *    firebase login
