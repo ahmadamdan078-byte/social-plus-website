@@ -211,7 +211,7 @@
       }, { passive: true });
 
       document.addEventListener('mouseover', (e) => {
-        const interactive = e.target.closest('a, button, .service-card, .portfolio-card, .pricing-card, input, select, textarea, .filter-btn');
+        const interactive = e.target.closest('a, button, .service-card, .portfolio-card, .pricing-card, input, select, textarea, .filter-btn, .auth-gate, .auth-oauth-btn, .auth-tabs__btn, .auth-card__close');
         document.body.classList.toggle('cursor-hover', !!interactive);
       });
 
