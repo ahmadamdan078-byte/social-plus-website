@@ -27,6 +27,7 @@
   const navUserEmail = document.getElementById('nav-user-email');
   const navUserAvatar = document.getElementById('nav-user-avatar');
   const navSignOut = document.getElementById('nav-signout');
+  const navAccountMobile = document.getElementById('nav-account-mobile');
 
   let mode = 'signin';
   let auth = null;
@@ -109,6 +110,10 @@
       navUser.hidden = !signedIn;
       navUser.style.display = signedIn ? '' : 'none';
     }
+    if (navAccountMobile) {
+      navAccountMobile.classList.toggle('is-signed-in', signedIn);
+      navAccountMobile.setAttribute('aria-label', signedIn ? t('auth.signout') : t('auth.signin.nav'));
+    }
     if (navUserEmail && user) {
       navUserEmail.textContent = user.displayName || user.email || 'Member';
       navUserEmail.title = user.email || '';
@@ -118,6 +123,16 @@
     }
     if (navUserAvatar) {
       navUserAvatar.textContent = userInitial(user);
+    }
+  }
+
+  function handleAccountAction() {
+    const user = auth ? auth.currentUser : null;
+    if (user) {
+      signOut();
+    } else {
+      window.SP_NAV?.close?.();
+      openAuthModal();
     }
   }
 
@@ -306,9 +321,15 @@
   }
 
   function initFirebase() {
+    closeAuthModal();
+
+    /* Always show Sign In — Firebase optional for browsing */
+    if (navAuthBtn) {
+      navAuthBtn.hidden = false;
+      navAuthBtn.style.display = '';
+    }
+
     if (!isConfigured()) {
-      closeAuthModal();
-      if (navAuthBtn) navAuthBtn.hidden = true;
       return;
     }
 
@@ -327,6 +348,7 @@
     if (window.SP_DB) window.SP_DB.init();
 
     if (navAuthBtn) navAuthBtn.hidden = false;
+
     closeAuthModal();
 
     auth.getRedirectResult().catch(err => {
@@ -360,6 +382,7 @@
   document.getElementById('auth-google')?.addEventListener('click', () => signInWithProvider('google'));
   document.getElementById('auth-apple')?.addEventListener('click', () => signInWithProvider('apple'));
   navAuthBtn?.addEventListener('click', openAuthModal);
+  navAccountMobile?.addEventListener('click', handleAccountAction);
   document.getElementById('auth-close')?.addEventListener('click', closeAuthModal);
   gate?.addEventListener('click', (e) => {
     if (e.target === gate && !AUTH_REQUIRED) closeAuthModal();
@@ -375,6 +398,7 @@
   };
 
   setMode('signin');
+  updateNav(null);
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initFirebase);
