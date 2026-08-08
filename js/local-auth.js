@@ -48,18 +48,23 @@
   function makeUser(email, displayName, provider) {
     const cleanEmail = String(email).trim().toLowerCase();
     const name = displayName || cleanEmail.split('@')[0] || 'Member';
-    return {
+    const adminList = (window.SP_ADMIN_CONFIG?.emails || []).map(e => e.toLowerCase().trim());
+    const user = {
       uid: `local_${cleanEmail.replace(/[^a-z0-9]/gi, '_')}`,
       email: cleanEmail,
       displayName: name,
       providerData: [{ providerId: provider }]
     };
+    if (adminList.includes(cleanEmail)) user.role = 'admin';
+    return user;
   }
 
   function setUser(user) {
     currentUser = user;
     writeSession(user);
     listeners.forEach(fn => fn(user));
+    window.dispatchEvent(new CustomEvent('sp:authchange', { detail: { user } }));
+    if (window.SP_ADMIN?.setAdmin) window.SP_ADMIN.setAdmin(user);
     return user;
   }
 
@@ -94,10 +99,16 @@
     currentUser = null;
     writeSession(null);
     listeners.forEach(fn => fn(null));
+    window.dispatchEvent(new CustomEvent('sp:authchange', { detail: { user: null } }));
+    if (window.SP_ADMIN?.setAdmin) window.SP_ADMIN.setAdmin(null);
   }
 
   function init() {
     currentUser = readSession();
+    if (currentUser?.email) {
+      const adminList = (window.SP_ADMIN_CONFIG?.emails || []).map(e => e.toLowerCase().trim());
+      if (adminList.includes(currentUser.email.toLowerCase())) currentUser.role = 'admin';
+    }
     return currentUser;
   }
 

@@ -153,6 +153,12 @@
       navUserEmail.title = '';
     }
     if (navUserAvatar) navUserAvatar.textContent = userInitial(user);
+    if (navUserEmail && user?.role === 'admin') {
+      navUserEmail.classList.add('is-admin');
+      navUserEmail.title = (user.email || '') + ' · Admin';
+    } else if (navUserEmail) {
+      navUserEmail.classList.remove('is-admin');
+    }
   }
 
   function handleAccountAction() {
@@ -257,6 +263,8 @@
       unlockSite(getCurrentUser());
       closeAuthModal();
       notify(t('auth.signin.success'));
+      window.dispatchEvent(new CustomEvent('sp:authchange', { detail: { user: getCurrentUser() } }));
+      if (window.SP_ADMIN?.setAdmin) window.SP_ADMIN.setAdmin(getCurrentUser());
     } catch (err) {
       showError(mapFirebaseError(err.message || err.code));
     }
@@ -313,6 +321,8 @@
       unlockSite(getCurrentUser());
       closeAuthModal();
       notify(t('auth.signin.success'));
+      window.dispatchEvent(new CustomEvent('sp:authchange', { detail: { user: getCurrentUser() } }));
+      if (window.SP_ADMIN?.setAdmin) window.SP_ADMIN.setAdmin(getCurrentUser());
     } catch (err) {
       showError(t('auth.error.generic'));
     } finally {
@@ -480,6 +490,7 @@
       navAuthBtn.style.display = user ? 'none' : '';
     }
     window.SP_LOCAL_AUTH.onChange(u => updateNav(u));
+    if (user && window.SP_ADMIN) window.SP_ADMIN.setAdmin(user);
     if (user) unlockSite(user);
     else if (AUTH_REQUIRED) lockSite();
     else updateNav(null);
