@@ -23,21 +23,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=18">
+  <link rel="stylesheet" href="css/styles.css?v=21">
   <script>
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
+    try {
+      var _sp = JSON.parse(localStorage.getItem('sp_admin_overrides') || '{}');
+      if (_sp.features) { delete _sp.features.maintenance; localStorage.setItem('sp_admin_overrides', JSON.stringify(_sp)); }
+    } catch (e) {}
+    document.documentElement.classList.remove('is-maintenance');
   </script>
 </head>
 <body>
-
-  <div class="maintenance-screen" id="maintenance-screen" hidden>
-    <div class="maintenance-screen__inner">
-      <img src="assets/social-plus-logo.png" alt="Social Plus" width="160" height="130">
-      <h1 data-i18n="admin.maintenance.title">We'll be back soon</h1>
-      <p data-i18n="admin.maintenance.desc">Social Plus is undergoing maintenance. Please check back shortly.</p>
-    </div>
-  </div>
 
   <!-- Auth modal — optional sign in (site is open to everyone) -->
   <div class="auth-gate" id="auth-gate" role="dialog" aria-modal="true" aria-labelledby="auth-title" hidden>
@@ -716,7 +713,7 @@
   <script src="js/db.js?v=18" defer></script>
   <script src="js/local-auth.js?v=18" defer></script>
   <script src="js/auth.js?v=18" defer></script>
-  <script src="js/admin.js?v=20" defer></script>
+  <script src="js/admin.js?v=21" defer></script>
   <script src="js/social-ai-config.js?v=18" defer></script>
   <script src="js/social-ai.js?v=18" defer></script>
   <script src="js/main.js?v=19" defer></script>

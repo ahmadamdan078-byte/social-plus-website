@@ -95,8 +95,6 @@
   }
 
   function applyOverrides() {
-    const maintEl = document.getElementById('maintenance-screen');
-    if (maintEl) maintEl.hidden = true;
     document.body.classList.remove('is-maintenance');
 
     /* i18n text overrides */
