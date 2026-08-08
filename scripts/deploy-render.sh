@@ -7,7 +7,7 @@ set -euo pipefail
 REPO="https://github.com/ahmadamdan078-byte/social-plus-website"
 BRANCH="main"
 SERVICE_NAME="social-plus-website"
-BUILD_CMD="node scripts/inject-firebase-config.js"
+BUILD_CMD="npm run build"
 
 if [ -z "${RENDER_API_KEY:-}" ]; then
   echo ""

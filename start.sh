@@ -6,9 +6,9 @@ if ! command -v node >/dev/null 2>&1; then
   exit 1
 fi
 
-if [ ! -d node_modules ]; then
-  echo "Installing dependencies..."
-  npm install
+if [ ! -d server/node_modules ]; then
+  echo "Installing server dependencies..."
+  npm install --prefix server
 fi
 
 PORT="${PORT:-5500}"
@@ -24,4 +24,4 @@ echo "  Admin:    http://localhost:$PORT/admin"
 echo "  Press Ctrl+C to stop"
 echo ""
 
-node server.js
+NODE_PATH="$(pwd)/server/node_modules" node server.js

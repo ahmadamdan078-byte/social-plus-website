@@ -1,28 +1,7 @@
 {
   "name": "social-plus-website",
-  "version": "2.0.0",
   "private": true,
-  "description": "Social Plus agency website with Admin Control Center",
-  "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
-    "seed": "node backend/seed.js"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "better-sqlite3": "^11.7.0",
-    "cookie-parser": "^1.4.7",
-    "cors": "^2.8.5",
-    "express": "^4.21.2",
-    "express-rate-limit": "^7.5.0",
-    "helmet": "^8.0.0",
-    "jsonwebtoken": "^9.0.2",
-    "speakeasy": "^2.0.0",
-    "qrcode": "^1.5.4",
-    "uuid": "^11.0.3"
+    "build": "node scripts/inject-firebase-config.js"
   }
 }
