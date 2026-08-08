@@ -2595,29 +2595,33 @@ body.is-locked .site-shell {
   gap: 10px;
 }
 
-.nav__auth-btn,
-.nav__signout {
+.nav__auth-btn {
   min-height: 40px;
-  padding: 8px 14px;
+  padding: 8px 16px;
   font-size: 0.8125rem;
   font-weight: 600;
-  border-radius: var(--radius-sm);
+  letter-spacing: 0.02em;
+  border-radius: 100px;
   border: 1px solid var(--border);
   background: var(--bg-card);
-  transition: border-color var(--transition), background var(--transition);
+  color: var(--text-primary);
+  transition: border-color var(--transition), background var(--transition), box-shadow var(--transition), transform var(--transition);
 }
 
-.nav__auth-btn:hover,
-.nav__signout:hover {
-  border-color: rgba(59, 130, 246, 0.3);
+.nav__auth-btn:hover {
+  border-color: rgba(59, 130, 246, 0.35);
   background: var(--bg-card-hover);
+  box-shadow: var(--glow-blue);
+}
+
+.nav__auth-btn:active {
+  transform: scale(0.97);
 }
 
 .nav__user {
   display: flex;
   align-items: center;
-  gap: 8px;
-  max-width: 180px;
+  gap: 10px;
 }
 
 .nav__user[hidden],
@@ -2625,16 +2629,99 @@ body.is-locked .site-shell {
   display: none !important;
 }
 
+.nav__user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 200px;
+  padding: 5px 12px 5px 5px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+}
+
+.nav__user-avatar {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: var(--gradient-soft);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 50%;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.15);
+}
+
 .nav__user-email {
   font-size: 0.75rem;
+  font-weight: 500;
   color: var(--text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  line-height: 1.3;
+}
+
+.nav__signout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 8px 16px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.88);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  border-radius: 100px;
+  transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform var(--transition), color var(--transition);
+}
+
+.nav__signout-icon {
+  flex-shrink: 0;
+  opacity: 0.9;
+  transition: transform var(--transition);
+}
+
+.nav__signout:hover {
+  color: #fff;
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(239, 68, 68, 0.45);
+  box-shadow: 0 0 24px rgba(239, 68, 68, 0.18);
+}
+
+.nav__signout:hover .nav__signout-icon {
+  transform: translateX(2px);
+}
+
+html[dir="rtl"] .nav__signout:hover .nav__signout-icon {
+  transform: translateX(-2px);
+}
+
+.nav__signout:active {
+  transform: scale(0.96);
+}
+
+.nav__signout:focus-visible {
+  outline: 2px solid rgba(239, 68, 68, 0.55);
+  outline-offset: 2px;
 }
 
 html[dir="rtl"] .nav__user {
   flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .nav__user-chip {
+  flex-direction: row-reverse;
+  padding: 5px 5px 5px 12px;
 }
 
 /* ---- Mobile polish ---- */
@@ -2668,20 +2755,53 @@ html[dir="rtl"] .float-whatsapp {
     flex-direction: column;
     width: 100%;
     padding: 0 28px;
+    gap: 14px;
+  }
+
+  .nav__user {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+  }
+
+  .nav__user-chip {
+    width: 100%;
+    max-width: none;
+    justify-content: center;
+    padding: 10px 16px 10px 10px;
+  }
+
+  html[dir="rtl"] .nav__user-chip {
+    padding: 10px 10px 10px 16px;
+  }
+
+  .nav__user-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 0.875rem;
+  }
+
+  .nav__user-email {
+    font-size: 0.875rem;
+    text-align: start;
+    flex: 1;
+  }
+
+  html[dir="rtl"] .nav__user-email {
+    text-align: end;
   }
 
   .nav__auth-btn,
   .nav__signout {
     width: 100%;
-    min-height: 48px;
-    font-size: 1rem;
+    min-height: 52px;
+    font-size: 0.9375rem;
+    border-radius: var(--radius-md);
   }
 
-  .nav__user {
-    flex-direction: column;
-    max-width: 100%;
-    width: 100%;
-    text-align: center;
+  .nav__signout-icon {
+    width: 18px;
+    height: 18px;
   }
 
   .hero__visual {

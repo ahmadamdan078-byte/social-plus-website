@@ -25,6 +25,7 @@
   const navAuthBtn = document.getElementById('nav-auth-btn');
   const navUser = document.getElementById('nav-user');
   const navUserEmail = document.getElementById('nav-user-email');
+  const navUserAvatar = document.getElementById('nav-user-avatar');
   const navSignOut = document.getElementById('nav-signout');
 
   let mode = 'signin';
@@ -91,6 +92,13 @@
     clearError();
   }
 
+  function userInitial(user) {
+    if (!user) return 'SP';
+    const name = user.displayName || user.email || '';
+    const letter = name.replace(/^[^a-zA-Z0-9]*@?/, '').charAt(0);
+    return (letter || 'U').toUpperCase();
+  }
+
   function updateNav(user) {
     const signedIn = !!user;
     if (navAuthBtn) {
@@ -107,6 +115,9 @@
     } else if (navUserEmail) {
       navUserEmail.textContent = '';
       navUserEmail.title = '';
+    }
+    if (navUserAvatar) {
+      navUserAvatar.textContent = userInitial(user);
     }
   }
 
