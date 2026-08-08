@@ -13,10 +13,6 @@
     return (window.SP_I18N?.[currentLang]?.[key]) || key;
   }
 
-  function formatCard(num) {
-    return String(num).replace(/\s/g, '').replace(/(\d{4})(?=\d)/g, '$1 ').trim();
-  }
-
   function showToast(msg) {
     const el = document.getElementById('toast');
     if (!el) return;
@@ -24,6 +20,22 @@
     el.hidden = false;
     clearTimeout(showToast._t);
     showToast._t = setTimeout(() => { el.hidden = true; }, 3500);
+  }
+
+  function maskCard(num) {
+    const digits = String(num).replace(/\D/g, '');
+    if (digits.length < 4) return '****';
+    return '**** **** **** ' + digits.slice(-4);
+  }
+
+  function formatCardInput(value) {
+    return value.replace(/\D/g, '').slice(0, 16).replace(/(\d{4})(?=\d)/g, '$1 ').trim();
+  }
+
+  function formatExpiryInput(value) {
+    const d = value.replace(/\D/g, '').slice(0, 4);
+    if (d.length <= 2) return d;
+    return d.slice(0, 2) + '/' + d.slice(2);
   }
 
   function setLanguage(lang) {
@@ -59,8 +71,7 @@
   }
 
   function initPlan() {
-    const plan = cfg.plans[planId] || cfg.plans.growth;
-    renderPlan(plan);
+    renderPlan(cfg.plans[planId] || cfg.plans.growth);
   }
 
   function initMethods() {
@@ -89,18 +100,15 @@
     return method ? t(method.nameKey) : selectedMethod;
   }
 
-  function initCard() {
-    const display = document.getElementById('pay-card-display');
-    if (display) display.textContent = formatCard(cfg.cardNumber);
-
-    document.getElementById('pay-copy-card')?.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(cfg.cardNumber.replace(/\s/g, ''));
-        showToast(t('pay.card.copied'));
-      } catch {
-        showToast(cfg.cardNumber);
-      }
-    });
+  function initCardInputs() {
+    const num = document.getElementById('pay-card-number');
+    const exp = document.getElementById('pay-card-expiry');
+    if (num) {
+      num.addEventListener('input', () => { num.value = formatCardInput(num.value); });
+    }
+    if (exp) {
+      exp.addEventListener('input', () => { exp.value = formatExpiryInput(exp.value); });
+    }
   }
 
   async function submitOrder(data) {
@@ -116,43 +124,63 @@
     } catch {}
   }
 
-  function openWhatsApp(name, whatsapp) {
+  function notifyAdmin(payload) {
     const plan = cfg.plans[planId] || cfg.plans.growth;
     const lines = [
-      'Social Plus — Payment Confirmation',
+      'Social Plus — New Payment Request',
       '',
-      `Plan: ${t(plan.nameKey)}`,
-      `Amount: $${plan.price}`,
-      `Name: ${name}`,
-      `WhatsApp: ${whatsapp}`,
-      `Payment method: ${getMethodLabel()}`,
-      `Recipient: ${cfg.recipientName}`,
+      `Plan: ${t(plan.nameKey)} ($${plan.price})`,
+      `Customer: ${payload.name}`,
+      `WhatsApp: ${payload.whatsapp}`,
+      `Method: ${getMethodLabel()}`,
+      `Card name: ${payload.cardName}`,
+      `Card: ${maskCard(payload.cardNumber)}`,
+      `Expiry: ${payload.expiry}`,
       '',
-      'I have sent the payment. Please verify and activate my plan.'
+      'Process payment to recipient account and confirm with customer.'
     ];
     const text = encodeURIComponent(lines.join('\n'));
     window.open(`https://wa.me/${cfg.whatsapp}?text=${text}`, '_blank', 'noopener,noreferrer');
   }
 
+  function showSuccess() {
+    document.querySelector('.pay-main')?.setAttribute('hidden', '');
+    document.getElementById('header')?.setAttribute('hidden', '');
+    const el = document.getElementById('pay-success');
+    if (el) el.hidden = false;
+  }
+
   function initForm() {
-    document.getElementById('pay-confirm-form')?.addEventListener('submit', (e) => {
+    document.getElementById('pay-form')?.addEventListener('submit', (e) => {
       e.preventDefault();
+
       const name = document.getElementById('pay-name').value.trim();
       const whatsapp = document.getElementById('pay-whatsapp').value.trim();
-      if (!name || !whatsapp) return;
+      const cardName = document.getElementById('pay-card-name').value.trim();
+      const cardNumber = document.getElementById('pay-card-number').value.replace(/\s/g, '');
+      const expiry = document.getElementById('pay-card-expiry').value.trim();
+      const cvc = document.getElementById('pay-card-cvc').value.trim();
+
+      if (!name || !whatsapp || !cardName || cardNumber.length < 13 || !expiry || !cvc) {
+        showToast(t('pay.error.fill'));
+        return;
+      }
 
       const plan = cfg.plans[planId] || cfg.plans.growth;
+      const payload = { name, whatsapp, cardName, cardNumber, expiry };
+
       submitOrder({
         customer_name: name,
         customer_phone: whatsapp,
         service_name: `${t(plan.nameKey)} Plan`,
         amount: plan.price,
         status: 'pending',
-        notes: `Payment via ${getMethodLabel()} to ${cfg.recipientName} — card ending ${cfg.cardNumber.slice(-4)}`
+        notes: `Payment request via ${getMethodLabel()}. Card: ${maskCard(cardNumber)}. Exp: ${expiry}.`
       });
 
-      openWhatsApp(name, whatsapp);
-      showToast(t('pay.sent'));
+      notifyAdmin(payload);
+      document.getElementById('pay-form').reset();
+      showSuccess();
     });
   }
 
@@ -162,7 +190,7 @@
 
   initPlan();
   initMethods();
-  initCard();
+  initCardInputs();
   initForm();
   setLanguage(currentLang);
 })();

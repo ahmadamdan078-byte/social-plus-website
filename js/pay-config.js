@@ -1,4 +1,4 @@
-/** Payment recipient config */
+/** Private payment config — recipient details never shown on the public site */
 window.SP_PAY_CONFIG = {
   recipientName: 'Mohammad Hamdan',
   cardNumber: '4475133714333777',

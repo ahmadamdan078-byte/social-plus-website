@@ -4288,7 +4288,87 @@ body.is-maintenance .admin-toggle {
   margin-bottom: 12px;
 }
 
+.pay-form__heading {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pay-form__heading:not(:first-child) {
+  margin-top: 8px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.pay-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.pay-secure-note {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 24px;
+  padding: 14px;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.pay-success {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(5, 5, 8, 0.92);
+}
+
+.pay-success__card {
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  padding: 40px 28px;
+}
+
+.pay-success__icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  font-size: 1.75rem;
+  line-height: 56px;
+  font-weight: 700;
+}
+
+.pay-success__card h2 {
+  font-family: var(--font-display);
+  margin-bottom: 10px;
+}
+
+.pay-success__card p {
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  font-size: 0.9375rem;
+}
+
 @media (max-width: 768px) {
+  .pay-form__row {
+    grid-template-columns: 1fr;
+  }
+
   .pay-grid {
     grid-template-columns: 1fr;
   }

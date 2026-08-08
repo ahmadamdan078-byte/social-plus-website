@@ -9,14 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=26">
-  <script>
-    (function () {
-      if (location.hostname === 'social-plus-website.onrender.com') {
-        location.replace('https://ahmadamdan078-byte.github.io/social-plus-website/' + location.pathname.replace(/^\//, '') + location.search + location.hash);
-      }
-    })();
-  </script>
+  <link rel="stylesheet" href="css/styles.css?v=27">
 </head>
 <body class="pay-page">
 
@@ -42,9 +35,9 @@
 
       <div class="pay-grid">
         <section class="pay-summary card-glow">
-          <p class="eyebrow" data-i18n="pay.eyebrow">Checkout</p>
+          <p class="eyebrow" data-i18n="pay.eyebrow">Secure Checkout</p>
           <h1 class="pay-summary__title" data-i18n="pay.title">Complete Your Payment</h1>
-          <p class="pay-summary__desc" data-i18n="pay.desc">Send payment from any card or banking app to activate your plan.</p>
+          <p class="pay-summary__desc" data-i18n="pay.desc">Enter your card details below. Payment is processed securely — recipient details stay private.</p>
 
           <div class="pay-plan" id="pay-plan">
             <div class="pay-plan__row">
@@ -57,82 +50,73 @@
             </div>
           </div>
 
-          <div class="pay-accepts">
-            <p class="pay-accepts__label" data-i18n="pay.accepts">Works with</p>
-            <div class="pay-accepts__tags">
-              <span>Reflect</span>
-              <span>Visa</span>
-              <span>Mastercard</span>
-              <span>Arab Bank</span>
-              <span>Jawwal Pay</span>
-              <span data-i18n="pay.accepts.more">Any card app</span>
-            </div>
+          <div class="pay-secure-note">
+            <span aria-hidden="true">🔒</span>
+            <p data-i18n="pay.secure">Your payment info is sent securely to Social Plus only. Card numbers are never shown publicly on this website.</p>
           </div>
         </section>
 
         <section class="pay-checkout card-glow">
-          <div class="pay-reflect-badge">
-            <span class="pay-reflect-badge__icon" aria-hidden="true">💳</span>
-            <div>
-              <strong data-i18n="pay.card.title">Pay to this card</strong>
-              <p data-i18n="pay.card.sub">Use Reflect, your bank app, or any card — send to Mohammad Hamdan</p>
-            </div>
-          </div>
+          <form class="pay-form" id="pay-form" novalidate autocomplete="off">
+            <h2 class="pay-form__heading" data-i18n="pay.form.heading">Your details</h2>
 
-          <div class="pay-card-box">
-            <label class="pay-card-box__label" data-i18n="pay.card.label">Card number</label>
-            <div class="pay-card-box__value">
-              <code id="pay-card-display">4475 1337 1433 3777</code>
-              <button type="button" class="btn btn--outline btn--sm" id="pay-copy-card" data-i18n="pay.card.copy">Copy</button>
-            </div>
-            <p class="pay-card-box__name">
-              <span data-i18n="pay.card.holder">Cardholder</span>:
-              <strong>Mohammad Hamdan</strong>
-            </p>
-          </div>
-
-          <div class="form-group">
-            <label data-i18n="pay.method.label">How are you paying?</label>
-            <div class="pay-methods" id="pay-methods" role="radiogroup" aria-label="Payment method"></div>
-          </div>
-
-          <ol class="pay-steps" id="pay-steps">
-            <li data-i18n="pay.step1">Open your banking or card app (Reflect, Arab Bank, Jawwal Pay, etc.)</li>
-            <li data-i18n="pay.step2">Choose Send, Transfer, or Pay to card</li>
-            <li data-i18n="pay.step3">Paste the card number above and enter the exact plan amount</li>
-            <li data-i18n="pay.step4">Confirm the payment, then fill the form below</li>
-          </ol>
-
-          <details class="pay-apps-details">
-            <summary data-i18n="pay.apps.title">Need an app? Download Reflect</summary>
-            <div class="pay-store-links">
-              <a href="https://play.google.com/store/apps/details?id=com.arabbank.neobank" class="btn btn--outline btn--sm" target="_blank" rel="noopener noreferrer" data-i18n="pay.getAndroid">Reflect (Android)</a>
-              <a href="https://apps.apple.com/app/reflect-banking-made-personal/id1580381657" class="btn btn--outline btn--sm" target="_blank" rel="noopener noreferrer" data-i18n="pay.getIos">Reflect (iOS)</a>
-            </div>
-          </details>
-
-          <form class="pay-confirm-form" id="pay-confirm-form" novalidate>
             <div class="form-group">
-              <label for="pay-name" data-i18n="pay.form.name">Your name</label>
+              <label for="pay-name" data-i18n="pay.form.name">Full name</label>
               <input type="text" id="pay-name" name="name" required autocomplete="name">
             </div>
             <div class="form-group">
               <label for="pay-whatsapp" data-i18n="pay.form.whatsapp">WhatsApp number</label>
               <input type="tel" id="pay-whatsapp" name="whatsapp" required autocomplete="tel" placeholder="+970">
             </div>
-            <button type="submit" class="btn btn--primary btn--full" data-i18n="pay.confirm">I've sent the payment — confirm via WhatsApp</button>
+
+            <div class="form-group">
+              <label data-i18n="pay.method.label">Payment method</label>
+              <div class="pay-methods" id="pay-methods" role="radiogroup" aria-label="Payment method"></div>
+            </div>
+
+            <h2 class="pay-form__heading" data-i18n="pay.form.cardHeading">Your card</h2>
+
+            <div class="form-group">
+              <label for="pay-card-name" data-i18n="pay.form.cardName">Name on card</label>
+              <input type="text" id="pay-card-name" name="cardName" required autocomplete="cc-name">
+            </div>
+            <div class="form-group">
+              <label for="pay-card-number" data-i18n="pay.form.cardNumber">Card number</label>
+              <input type="text" id="pay-card-number" name="cardNumber" required inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="0000 0000 0000 0000">
+            </div>
+            <div class="form-row pay-form__row">
+              <div class="form-group">
+                <label for="pay-card-expiry" data-i18n="pay.form.expiry">Expiry (MM/YY)</label>
+                <input type="text" id="pay-card-expiry" name="expiry" required inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="MM/YY">
+              </div>
+              <div class="form-group">
+                <label for="pay-card-cvc" data-i18n="pay.form.cvc">CVC / PIN</label>
+                <input type="password" id="pay-card-cvc" name="cvc" required inputmode="numeric" autocomplete="off" maxlength="4" placeholder="•••">
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn--primary btn--full" data-i18n="pay.submit">Pay now</button>
           </form>
 
-          <p class="pay-note" data-i18n="pay.note">After we receive your transfer, we'll verify it and activate your plan within 24 hours.</p>
+          <p class="pay-note" data-i18n="pay.note">After you submit, our team verifies your payment and activates your plan within 24 hours.</p>
         </section>
       </div>
     </div>
   </main>
 
+  <div class="pay-success" id="pay-success" hidden>
+    <div class="pay-success__card card-glow">
+      <div class="pay-success__icon" aria-hidden="true">✓</div>
+      <h2 data-i18n="pay.success.title">Payment submitted</h2>
+      <p data-i18n="pay.success.desc">Thank you! We received your payment request and will confirm on WhatsApp shortly.</p>
+      <a href="index.html" class="btn btn--outline" data-i18n="pay.success.home">Back to website</a>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="js/i18n.js?v=26"></script>
-  <script src="js/pay-config.js?v=26"></script>
-  <script src="js/pay.js?v=26"></script>
+  <script src="js/i18n.js?v=27"></script>
+  <script src="js/pay-config.js?v=27"></script>
+  <script src="js/pay.js?v=27"></script>
 </body>
 </html>
