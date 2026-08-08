@@ -20,6 +20,9 @@ services:
       - path: /index.html
         name: Cache-Control
         value: no-cache, no-store, must-revalidate
+      - path: /pay.html
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate
       - path: /*
         name: X-Frame-Options
         value: SAMEORIGIN
