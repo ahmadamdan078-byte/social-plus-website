@@ -106,6 +106,8 @@
       ? 'Social Plus | وكالة السوشial ميديا والنمو الرقمي'
       : 'Social Plus | Social Media & Digital Growth Agency';
 
+    window.dispatchEvent(new CustomEvent('sp:langchange', { detail: { lang } }));
+
     if (baInput) updateBaSlider(baInput.value);
   }
 
