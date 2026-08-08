@@ -201,13 +201,28 @@
         fy += (my - fy) * 0.18;
         cursor.style.transform = `translate(${mx}px, ${my}px)`;
         follower.style.transform = `translate(${fx}px, ${fy}px)`;
+
+        const dx = Math.abs(mx - fx);
+        const dy = Math.abs(my - fy);
+        if (dx < 0.5 && dy < 0.5) {
+          rafId = null;
+          return;
+        }
         rafId = requestAnimationFrame(moveCursor);
       }
 
+      let moveTimer = null;
       document.addEventListener('mousemove', (e) => {
         mx = e.clientX;
         my = e.clientY;
         if (!rafId) rafId = requestAnimationFrame(moveCursor);
+        clearTimeout(moveTimer);
+        moveTimer = setTimeout(() => {
+          if (rafId) {
+            cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(moveCursor);
+          }
+        }, 120);
       }, { passive: true });
 
       document.addEventListener('mouseover', (e) => {

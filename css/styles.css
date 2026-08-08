@@ -2960,8 +2960,12 @@ html[dir="rtl"] .float-whatsapp {
 .social-ai {
   position: fixed;
   z-index: 95;
-  inset-inline-start: max(20px, env(safe-area-inset-left));
+  left: 50%;
   bottom: max(20px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .social-ai__toggle {
@@ -3047,7 +3051,7 @@ html[dir="rtl"] .social-ai__toggle {
 
 .social-ai__panel {
   position: absolute;
-  inset-inline-start: 0;
+  left: 50%;
   bottom: calc(100% + 16px);
   width: min(400px, calc(100vw - 40px));
   height: min(560px, calc(100dvh - 120px));
@@ -3062,14 +3066,9 @@ html[dir="rtl"] .social-ai__toggle {
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   overflow: hidden;
-  transform-origin: bottom left;
+  transform: translateX(-50%);
+  transform-origin: bottom center;
   animation: social-ai-panel-in 0.4s var(--ease);
-}
-
-html[dir="rtl"] .social-ai__panel {
-  transform-origin: bottom right;
-  inset-inline-start: auto;
-  inset-inline-end: 0;
 }
 
 .social-ai__panel[hidden] {
@@ -3079,11 +3078,11 @@ html[dir="rtl"] .social-ai__panel {
 @keyframes social-ai-panel-in {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.96);
+    transform: translateX(-50%) translateY(12px) scale(0.96);
   }
   to {
     opacity: 1;
-    transform: none;
+    transform: translateX(-50%) translateY(0) scale(1);
   }
 }
 
@@ -3376,11 +3375,13 @@ html[dir="rtl"] .social-ai__panel {
   .social-ai__panel {
     position: fixed;
     inset: 0;
+    left: 0;
     width: 100%;
     height: 100dvh;
     max-height: none;
     border-radius: 0;
     bottom: auto;
+    transform: none;
     z-index: 200;
     animation: none;
   }
@@ -3399,5 +3400,49 @@ html[dir="rtl"] .social-ai__panel {
   .social-ai__msg,
   .social-ai__dot {
     animation: none !important;
+  }
+}
+
+/* ---- Performance (mobile / touch) ---- */
+
+@media (max-width: 768px), (hover: none), (pointer: coarse) {
+  .header.scrolled,
+  .auth-gate,
+  .nav__end.is-open,
+  .social-ai__toggle,
+  .social-ai__panel,
+  .service-card,
+  .pricing-card {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .hero::before,
+  .hero__glow--1,
+  .hero__glow--2,
+  .hero-brand__glow,
+  .hero-node,
+  .social-ai__toggle-ring {
+    animation: none !important;
+  }
+
+  .hero__glow--1,
+  .hero__glow--2 {
+    filter: blur(48px);
+    opacity: 0.65;
+  }
+
+  .hero-brand__glow {
+    filter: blur(20px);
+  }
+
+  .cursor,
+  .cursor-follower {
+    display: none !important;
+  }
+
+  body.has-custom-cursor,
+  body.has-custom-cursor * {
+    cursor: auto !important;
   }
 }

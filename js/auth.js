@@ -320,7 +320,26 @@
     }
   }
 
-  function initFirebase() {
+  function loadFirebaseSdk() {
+    if (typeof window.firebase !== 'undefined') return Promise.resolve();
+
+    const urls = [
+      'https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js',
+      'https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js',
+      'https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js'
+    ];
+
+    return urls.reduce((chain, src) => chain.then(() => new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = src;
+      script.crossOrigin = 'anonymous';
+      script.onload = resolve;
+      script.onerror = () => reject(new Error('Firebase SDK failed to load'));
+      document.head.appendChild(script);
+    })), Promise.resolve());
+  }
+
+  async function initFirebase() {
     closeAuthModal();
 
     /* Always show Sign In — Firebase optional for browsing */
@@ -330,6 +349,13 @@
     }
 
     if (!isConfigured()) {
+      return;
+    }
+
+    try {
+      await loadFirebaseSdk();
+    } catch (err) {
+      console.error('Firebase SDK not loaded', err);
       return;
     }
 
@@ -401,9 +427,17 @@
   updateNav(null);
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initFirebase);
+    document.addEventListener('DOMContentLoaded', bootAuth);
   } else {
-    initFirebase();
+    bootAuth();
+  }
+
+  function bootAuth() {
+    if (isConfigured() && 'requestIdleCallback' in window) {
+      requestIdleCallback(() => initFirebase(), { timeout: 2500 });
+    } else {
+      initFirebase();
+    }
   }
 
   window.addEventListener('sp:langchange', () => setMode(mode));

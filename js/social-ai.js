@@ -153,6 +153,14 @@
     });
   }
 
+  function resetChat() {
+    hideTyping();
+    history = [];
+    greeted = false;
+    if (messagesEl) messagesEl.innerHTML = '';
+    if (input) input.value = '';
+  }
+
   function openPanel() {
     if (!panel || !toggle) return;
     isOpen = true;
@@ -177,6 +185,7 @@
     toggle.classList.remove('is-open');
     toggle.setAttribute('aria-expanded', 'false');
     document.body.classList.remove('social-ai-open');
+    resetChat();
   }
 
   function togglePanel() {
