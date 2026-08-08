@@ -655,7 +655,10 @@
     </div>
   </footer>
 
-  <!-- Social AI Assistant -->
+  </div><!-- /.site-shell -->
+
+  <!-- Social AI Assistant (outside site-shell so fixed positioning works) -->
+  <div class="social-ai__backdrop" id="social-ai-backdrop" hidden aria-hidden="true"></div>
   <div class="social-ai" id="social-ai">
     <div class="social-ai__panel" id="social-ai-panel" hidden role="dialog" aria-labelledby="social-ai-title" aria-modal="true">
       <header class="social-ai__header">
@@ -694,8 +697,6 @@
     <span data-i18n="float.whatsapp">Chat With Us</span>
   </a>
 
-  </div><!-- /.site-shell -->
-
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
@@ -728,10 +729,12 @@
     <button type="button" class="admin-btn admin-btn--gold admin-btn--sm" id="admin-toolbar-done" data-i18n="admin.done">Done</button>
   </div>
 
-  <script src="js/api-base.js?v=27" defer></script>
-  <script src="js/i18n.js?v=27" defer></script>
-  <script src="js/main.js?v=27" defer></script>
-  <script src="js/site-api.js?v=27" defer></script>
-  <script src="js/sp-boot.js?v=27" defer></script>
+  <script src="js/api-base.js?v=28" defer></script>
+  <script src="js/i18n.js?v=28" defer></script>
+  <script src="js/main.js?v=28" defer></script>
+  <script src="js/site-api.js?v=28" defer></script>
+  <script src="js/social-ai-config.js?v=28" defer></script>
+  <script src="js/social-ai.js?v=28" defer></script>
+  <script src="js/sp-boot.js?v=28" defer></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var V = '26';
+  var V = '28';
   var queue = [
     'js/admin-config.js',
     'js/firebase-config.js',
@@ -9,9 +9,7 @@
     'js/db.js',
     'js/local-auth.js',
     'js/auth.js',
-    'js/admin.js',
-    'js/social-ai-config.js',
-    'js/social-ai.js'
+    'js/admin.js'
   ];
 
   function loadNext(i) {

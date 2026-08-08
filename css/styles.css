@@ -2999,15 +2999,34 @@ html[dir="rtl"] .float-whatsapp {
 
 /* ---- Social AI Assistant ---- */
 
+.social-ai__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9988;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.3s var(--ease);
+  pointer-events: none;
+}
+
+.social-ai__backdrop:not([hidden]) {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .social-ai {
   position: fixed;
-  z-index: 95;
+  z-index: 9990;
   left: 50%;
   bottom: max(20px, env(safe-area-inset-bottom));
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
+  content-visibility: visible;
+  contain: none;
 }
 
 .social-ai__toggle {
@@ -3046,9 +3065,10 @@ html[dir="rtl"] .social-ai__toggle {
 }
 
 .social-ai__toggle.is-open {
+  transform: translateY(120%) scale(0.9);
   opacity: 0;
   pointer-events: none;
-  transform: scale(0.92);
+  visibility: hidden;
 }
 
 .social-ai__toggle-ring {
@@ -3092,25 +3112,27 @@ html[dir="rtl"] .social-ai__toggle {
 }
 
 .social-ai__panel {
-  position: absolute;
+  position: fixed;
   left: 50%;
-  bottom: calc(100% + 16px);
-  width: min(400px, calc(100vw - 40px));
-  height: min(560px, calc(100dvh - 120px));
+  bottom: max(88px, calc(20px + env(safe-area-inset-bottom) + 68px));
+  width: min(420px, calc(100vw - 32px));
+  height: min(580px, calc(100dvh - 120px));
   display: flex;
   flex-direction: column;
-  border-radius: 20px;
-  background: linear-gradient(165deg, rgba(15, 23, 42, 0.97) 0%, rgba(17, 24, 39, 0.98) 100%);
-  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 22px;
+  background: linear-gradient(165deg, rgba(12, 12, 16, 0.98) 0%, rgba(20, 20, 28, 0.99) 100%);
+  border: 1px solid rgba(233, 30, 140, 0.22);
   box-shadow:
-    0 24px 80px rgba(0, 0, 0, 0.55),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+    0 28px 90px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+    0 0 60px rgba(233, 30, 140, 0.08);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   overflow: hidden;
   transform: translateX(-50%);
   transform-origin: bottom center;
-  animation: social-ai-panel-in 0.4s var(--ease);
+  z-index: 9991;
+  animation: social-ai-panel-in 0.35s var(--ease);
 }
 
 .social-ai__panel[hidden] {
@@ -3230,6 +3252,7 @@ html[dir="rtl"] .social-ai__toggle {
 .social-ai__msg {
   display: flex;
   gap: 10px;
+  align-items: flex-start;
   max-width: 92%;
   animation: social-ai-msg-in 0.35s var(--ease);
 }
@@ -3237,6 +3260,13 @@ html[dir="rtl"] .social-ai__toggle {
 .social-ai__msg--user {
   align-self: flex-end;
   flex-direction: row-reverse;
+}
+
+.social-ai__msg-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
 }
 
 @keyframes social-ai-msg-in {
@@ -3251,17 +3281,22 @@ html[dir="rtl"] .social-ai__toggle {
 }
 
 .social-ai__msg-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.6875rem;
-  font-weight: 800;
-  color: white;
-  background: linear-gradient(135deg, #E91E8C, #FF5722);
+  background: #fff;
+  padding: 3px;
+  box-shadow: 0 0 0 2px rgba(233, 30, 140, 0.35);
+}
+
+.social-ai__msg-avatar img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 
 .social-ai__msg-bubble {
@@ -3276,6 +3311,16 @@ html[dir="rtl"] .social-ai__toggle {
   background: rgba(30, 41, 59, 0.85);
   border: 1px solid rgba(148, 163, 184, 0.12);
   border-start-start-radius: 4px;
+}
+
+.social-ai__msg--bot .social-ai__msg-bubble a {
+  color: #FF6B9D;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.social-ai__msg--bot .social-ai__msg-bubble strong {
+  color: #fff;
 }
 
 .social-ai__msg--user .social-ai__msg-bubble {
@@ -3345,6 +3390,34 @@ html[dir="rtl"] .social-ai__toggle {
   border-color: rgba(233, 30, 140, 0.4);
   color: var(--text-primary);
   background: rgba(233, 30, 140, 0.08);
+}
+
+.social-ai__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.social-ai__action {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 12px;
+  border-radius: 100px;
+  border: 1px solid rgba(233, 30, 140, 0.35);
+  background: rgba(233, 30, 140, 0.12);
+  color: #FF6B9D;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s var(--ease), border-color 0.2s var(--ease), transform 0.2s var(--ease);
+  font-family: inherit;
+}
+
+.social-ai__action:hover {
+  background: rgba(233, 30, 140, 0.22);
+  border-color: rgba(255, 87, 34, 0.5);
+  transform: translateY(-1px);
 }
 
 .social-ai__form {
@@ -3424,8 +3497,13 @@ html[dir="rtl"] .social-ai__toggle {
     border-radius: 0;
     bottom: auto;
     transform: none;
-    z-index: 200;
+    z-index: 9991;
     animation: none;
+  }
+
+  .social-ai__backdrop:not([hidden]) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   body.social-ai-open {
@@ -4520,9 +4598,7 @@ body.is-maintenance .admin-toggle {
 
 /* Faster initial paint — defer layout for below-fold sections */
 .section:not(.hero),
-.footer,
-.social-ai,
-.float-whatsapp {
+.footer {
   content-visibility: auto;
   contain-intrinsic-size: auto 480px;
 }
