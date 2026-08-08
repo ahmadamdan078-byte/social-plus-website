@@ -180,7 +180,20 @@
     $('store-unavailable').hidden = false;
   }
 
+  function populateCountries() {
+    const sel = $('co-country');
+    if (!sel || sel.dataset.populated === '1') return;
+    const list = window.SP_COUNTRIES || [];
+    if (!list.length) return;
+    sel.innerHTML = list.map((c) =>
+      `<option value="${c.code}">${c.name}</option>`
+    ).join('');
+    sel.value = 'PS';
+    sel.dataset.populated = '1';
+  }
+
   async function init() {
+    populateCountries();
     try {
       bootstrap = await api(`/api/checkout/bootstrap?plan=${planId}`);
     } catch {
