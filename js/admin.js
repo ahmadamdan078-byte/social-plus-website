@@ -73,6 +73,8 @@
     const remote = await fetchRemoteOverrides();
     const local = loadLocalOverrides();
     overrides = deepMerge(remote, local);
+    if (overrides.features) delete overrides.features.maintenance;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides));
     applyOverrides();
   }
 
@@ -93,13 +95,7 @@
   }
 
   function applyOverrides() {
-    const maint = get('features.maintenance', false);
     const maintEl = document.getElementById('maintenance-screen');
-    if (maint && !isAdmin) {
-      if (maintEl) maintEl.hidden = false;
-      document.body.classList.add('is-maintenance');
-      return;
-    }
     if (maintEl) maintEl.hidden = true;
     document.body.classList.remove('is-maintenance');
 
