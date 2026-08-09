@@ -40,6 +40,7 @@ Pricing → checkout.html → Select method → Pay → receipt.html
 
 ## Test promo codes (seeded)
 
+- `SAVE18` — **18% off** Starter, Growth & Pro — **one use only** (deactivates after first checkout)
 - `WELCOME10` — 10% off
 - `SOCIAL5` — $5 off (min $12)
 

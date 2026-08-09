@@ -69,6 +69,10 @@ function redeemPromo(promoId, { orderId, paymentId, customerEmail, discountCents
   db.prepare(`
     UPDATE promo_codes SET used_count = used_count + 1, updated_at = datetime('now') WHERE id = ?
   `).run(promoId);
+  const promo = db.prepare(`SELECT max_uses, used_count FROM promo_codes WHERE id = ?`).get(promoId);
+  if (promo && promo.max_uses > 0 && promo.used_count >= promo.max_uses) {
+    db.prepare(`UPDATE promo_codes SET active = 0, updated_at = datetime('now') WHERE id = ?`).run(promoId);
+  }
 }
 
 function listPromos() {

@@ -4,7 +4,6 @@ const { PERMISSIONS } = require('../permissions');
 const { logAdminAction } = require('../audit');
 const { getActiveProvider } = require('../payments');
 const {
-  PLANS,
   PLAN_IMAGES,
   computeQuote,
   formatQuote,
@@ -24,7 +23,7 @@ const {
   getSetting,
   seedPaymentMethods
 } = require('../payments/settings-service');
-const { findPaymentById, markPaymentStatus } = require('../payments/order-service');
+const { findPaymentById, markPaymentStatus, getPlans, getPlan } = require('../payments/order-service');
 const { getPaymentProvider } = require('../payments');
 
 function routerCheckout() {
@@ -36,14 +35,15 @@ function routerCheckout() {
   router.get('/bootstrap', (req, res) => {
     const provider = getPaymentProvider();
     const planId = (req.query.plan || 'growth').toLowerCase();
-    const plan = PLANS[planId] || PLANS.growth;
+    const plans = getPlans();
+    const plan = getPlan(planId);
     res.json({
       enabled: provider.isConfigured() || getPublicSettings().walletEnabled,
       provider: provider.name,
       publishableKey: provider.getPublishableKey(),
       settings: getPublicSettings(),
       methods: getEnabledMethods(),
-      plans: Object.entries(PLANS).map(([id, p]) => ({
+      plans: Object.entries(plans).map(([id, p]) => ({
         id,
         name: p.name,
         price: p.priceCents / 100,
@@ -74,7 +74,7 @@ function routerCheckout() {
 
   router.post('/validate-promo', (req, res) => {
     const { code, planId, quantity, customerEmail } = req.body || {};
-    const plan = PLANS[(planId || 'growth').toLowerCase()] || PLANS.growth;
+    const plan = getPlan((planId || 'growth').toLowerCase());
     const qty = Math.max(1, parseInt(quantity, 10) || 1);
     const subtotalCents = plan.priceCents * qty;
     const result = validatePromo(code, { planId, subtotalCents, customerEmail });

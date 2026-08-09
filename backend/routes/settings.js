@@ -2,6 +2,7 @@ const { db } = require('../db');
 const { logAdminAction } = require('../audit');
 const { requireAuth, requirePermission } = require('../middleware/auth');
 const { PERMISSIONS } = require('../permissions');
+const { getPlanPricing, setPlanPricing } = require('../services/plan-pricing');
 
 function ip(req) {
   return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
@@ -42,6 +43,21 @@ function routerSettings() {
     tx(settings);
     logAdminAction(req.admin.id, 'update_settings', 'settings', null, { keys: Object.keys(settings) }, ip(req));
     res.json({ ok: true });
+  });
+
+  router.get('/plan-pricing', (req, res) => {
+    res.json({ plans: getPlanPricing() });
+  });
+
+  router.put('/plan-pricing', requireAuth, requirePermission(PERMISSIONS.MANAGE_SETTINGS), (req, res) => {
+    const body = req.body || {};
+    const plans = setPlanPricing({
+      starter: body.starter,
+      growth: body.growth,
+      pro: body.pro
+    });
+    logAdminAction(req.admin.id, 'update_plan_pricing', 'pricing', null, plans, ip(req));
+    res.json({ ok: true, plans });
   });
 
   return router;

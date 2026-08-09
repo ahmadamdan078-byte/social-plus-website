@@ -442,6 +442,17 @@
 }
 .store-fallback__product img { border-radius: 10px; }
 .store-fallback__product p { color: #E91E8C; font-weight: 700; margin-top: 4px; }
+.store-fallback__discount {
+  font-size: 0.875rem !important;
+  color: #22c55e !important;
+  font-weight: 600 !important;
+}
+.store-fallback__total {
+  font-size: 1rem !important;
+  color: #f0f0f5 !important;
+  font-weight: 700 !important;
+}
+.store-fallback__total span { color: #E91E8C; }
 
 /* Receipt page */
 .store-receipt {

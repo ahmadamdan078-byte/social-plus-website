@@ -100,29 +100,44 @@
     bar.textContent = lang === 'ar' ? (ann.message_ar || ann.message_en) : ann.message_en;
   }
 
+  function applyPricingFromConfig(config) {
+    if (!config) return;
+    window.SP_PRICING?.setFromPublicPricing?.(config.pricing);
+    window.SP_PRICING?.setFromServices?.(config.services);
+    window.SP_PRICING?.setFromSettings?.(config.settings);
+    window.SP_PRICING?.applyToDom?.();
+  }
+
+  async function loadPublicOverridesFile() {
+    const url = window.SP_ADMIN_CONFIG?.overridesUrl || 'data/site-overrides.json';
+    try {
+      const res = await fetch(`${url}?v=${Date.now()}`, { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.pricing) window.SP_PRICING?.setFromPublicPricing?.(data.pricing);
+      window.SP_PRICING?.applyToDom?.();
+    } catch {
+      /* static file missing */
+    }
+  }
+
   async function loadSiteConfig() {
     try {
       const res = await fetch(window.spApi('/api/public/site-config'));
-      if (!res.ok) return;
+      if (!res.ok) throw new Error('API unavailable');
       const config = await res.json();
       const lang = document.documentElement.lang === 'ar' ? 'ar' : 'en';
       applyDesign(config.design);
       applyContent(config.content, lang);
       applySections(config.sections);
       applySettings(config.settings);
+      applyPricingFromConfig(config);
       if (config.announcement?.active) applyAnnouncement(config.announcement);
 
       window.__SP_SITE_CONFIG = config;
       document.dispatchEvent(new CustomEvent('sp:site-config', { detail: config }));
     } catch {
-      /* API unavailable on static hosting — fall back to local overrides */
-      try {
-        const local = localStorage.getItem('sp_admin_overrides');
-        if (local) {
-          const overrides = JSON.parse(local);
-          document.dispatchEvent(new CustomEvent('sp:local-overrides', { detail: overrides }));
-        }
-      } catch {}
+      await loadPublicOverridesFile();
     }
   }
 

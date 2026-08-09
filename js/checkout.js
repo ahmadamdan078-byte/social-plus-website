@@ -1,11 +1,11 @@
 (function () {
   'use strict';
 
-  const PLANS = {
-    starter: { name: 'Starter Plan', price: 12 },
-    growth: { name: 'Growth Plan', price: 25 },
-    pro: { name: 'Pro Plan', price: 50 }
-  };
+  function getPlan(id) {
+    const price = window.SP_PRICING?.getPrice?.(id) ?? ({ starter: 12, growth: 25, pro: 50 }[id] ?? 25);
+    const names = { starter: 'Starter Plan', growth: 'Growth Plan', pro: 'Pro Plan' };
+    return { name: names[id] || names.growth, price };
+  }
 
   const params = new URLSearchParams(location.search);
   const planId = (params.get('plan') || 'growth').toLowerCase();
@@ -23,7 +23,7 @@
   }
 
   function updateSummary(qty) {
-    const plan = PLANS[planId] || PLANS.growth;
+    const plan = getPlan(planId);
     const quantity = Math.max(1, Math.min(99, parseInt(qty, 10) || 1));
     const subtotal = plan.price * quantity;
     $('summary-plan').textContent = plan.name;

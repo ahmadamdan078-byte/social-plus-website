@@ -9,6 +9,7 @@
   let bootstrap = null;
   let selectedMethod = 'card';
   let promoCode = '';
+  let fallbackPromo = null;
   let stripe = null;
   let elements = null;
   let paymentElement = null;
@@ -141,29 +142,122 @@
   }
 
   const LOCAL_PLANS = {
-    starter: { name: 'Starter Plan', price: 12, image: '/assets/brand-circle.png' },
-    growth: { name: 'Growth Plan', price: 25, image: '/assets/social-plus-logo.png' },
-    pro: { name: 'Pro Plan', price: 50, image: '/assets/social-plus-logo.png' }
+    starter: { name: 'Starter Plan', image: '/assets/brand-circle.png' },
+    growth: { name: 'Growth Plan', image: '/assets/social-plus-logo.png' },
+    pro: { name: 'Pro Plan', image: '/assets/social-plus-logo.png' }
   };
+
+  function resolvePlan(id) {
+    const tier = (id || planId || 'growth').toLowerCase();
+    const params = new URLSearchParams(location.search);
+    const urlPlan = (params.get('plan') || 'growth').toLowerCase();
+    const urlPrice = parseFloat(String(params.get('price') || '').replace(/[^0-9.]/g, ''));
+    let price;
+    if (tier === urlPlan && Number.isFinite(urlPrice)) {
+      price = urlPrice;
+    } else {
+      price = window.__SP_GET_PRICE__?.(tier)
+        ?? window.SP_PRICING?.getPrice?.(tier)
+        ?? 25;
+    }
+    const base = LOCAL_PLANS[tier] || LOCAL_PLANS.growth;
+    return { ...base, id: tier, price: Number(price) };
+  }
+
+  const FALLBACK_PROMOS = {
+    SAVE18: { type: 'percent', value: 18, plans: ['starter', 'growth', 'pro'] },
+    WELCOME10: { type: 'percent', value: 10 },
+    SOCIAL5: { type: 'fixed', value: 5, min: 15.99 }
+  };
+
+  function computeFallbackDiscount(code, subtotal, tier) {
+    const key = String(code || '').trim().toUpperCase();
+    const promo = FALLBACK_PROMOS[key];
+    if (!promo) return null;
+    if (promo.plans && !promo.plans.includes(tier)) {
+      return { error: 'Promo code not valid for this plan' };
+    }
+    if (promo.min != null && subtotal < promo.min) {
+      return { error: `Minimum order $${promo.min} for this code` };
+    }
+    let discount = promo.type === 'percent'
+      ? Math.floor(subtotal * (promo.value / 100) * 100) / 100
+      : Math.min(subtotal, promo.value);
+    return {
+      code: key,
+      label: promo.type === 'percent' ? `${promo.value}% off` : `$${promo.value} off`,
+      discount,
+      total: Math.max(0, subtotal - discount)
+    };
+  }
+
+  async function validateFallbackPromo(code) {
+    const trimmed = String(code || '').trim();
+    if (!trimmed) return null;
+    const subtotal = resolvePlan(planId).price;
+    try {
+      const res = await api('/api/checkout/validate-promo', {
+        method: 'POST',
+        body: { code: trimmed, planId, quantity: 1 }
+      });
+      const discount = Number(res.discount) || 0;
+      return {
+        code: trimmed.toUpperCase(),
+        label: res.label || 'Promo applied',
+        discount,
+        total: Math.max(0, subtotal - discount)
+      };
+    } catch (err) {
+      const local = computeFallbackDiscount(trimmed, subtotal, planId);
+      if (!local) return { error: err.message || 'Invalid promo code' };
+      if (local.error) return local;
+      return local;
+    }
+  }
 
   const WA_NUMBER = '970595052784';
 
   function showWhatsAppFallback() {
-    const plan = LOCAL_PLANS[planId] || LOCAL_PLANS.growth;
+    const plan = resolvePlan(planId);
     const imgPath = plan.image.replace(/^\//, '');
-    $('fb-plan').textContent = plan.name;
-    $('fb-price').textContent = money(plan.price);
-    $('fb-img').src = imgPath;
+
+    function renderFallback() {
+      const current = resolvePlan(planId);
+      const subtotal = current.price;
+      const discount = fallbackPromo?.discount || 0;
+      const total = fallbackPromo?.total ?? subtotal;
+
+      $('fb-plan').textContent = current.name;
+      $('fb-price').textContent = money(subtotal);
+      $('fb-total').textContent = money(total);
+
+      const discountRow = $('fb-discount-row');
+      if (discount > 0 && fallbackPromo) {
+        discountRow.hidden = false;
+        $('fb-discount').textContent = `−${money(discount)} (${fallbackPromo.label})`;
+      } else {
+        discountRow.hidden = true;
+      }
+      return current;
+    }
 
     function updateWaLink() {
+      renderFallback();
+      const current = resolvePlan(planId);
+      const subtotal = current.price;
+      const discount = fallbackPromo?.discount || 0;
+      const total = fallbackPromo?.total ?? subtotal;
       const name = $('fb-name').value.trim() || 'Customer';
       const email = $('fb-email').value.trim();
       const phone = $('fb-phone').value.trim();
       const text = [
         'Hello Social Plus! I want to order:',
         '',
-        `Plan: ${plan.name}`,
-        `Price: $${plan.price}`,
+        `Plan: ${current.name}`,
+        `Price: $${subtotal.toFixed(2)}`,
+        fallbackPromo?.code ? `Promo code: ${fallbackPromo.code}` : '',
+        discount > 0 ? `Discount: -$${discount.toFixed(2)} (${fallbackPromo.label})` : '',
+        `Total: $${total.toFixed(2)}`,
         `Name: ${name}`,
         email ? `Email: ${email}` : '',
         phone ? `WhatsApp: ${phone}` : '',
@@ -173,11 +267,53 @@
       $('fb-wa-btn').href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`;
     }
 
+    renderFallback();
+    $('fb-img').src = imgPath;
+
     ['fb-name', 'fb-email', 'fb-phone'].forEach((id) => {
       $(id)?.addEventListener('input', updateWaLink);
     });
+
+    $('fb-promo-apply')?.addEventListener('click', async () => {
+      const code = $('fb-promo')?.value.trim();
+      const msg = $('fb-promo-msg');
+      if (!code) {
+        fallbackPromo = null;
+        msg.hidden = true;
+        updateWaLink();
+        return;
+      }
+      msg.textContent = 'Checking code…';
+      msg.className = 'store-promo-msg';
+      msg.hidden = false;
+      const result = await validateFallbackPromo(code);
+      if (result?.error) {
+        fallbackPromo = null;
+        msg.textContent = result.error;
+        msg.className = 'store-promo-msg is-err';
+      } else {
+        fallbackPromo = result;
+        msg.textContent = `${result.label} applied`;
+        msg.className = 'store-promo-msg is-ok';
+      }
+      updateWaLink();
+    });
+
+    $('fb-promo')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        $('fb-promo-apply')?.click();
+      }
+    });
+
     updateWaLink();
     $('store-unavailable').hidden = false;
+
+    function onPricingChange() {
+      updateWaLink();
+    }
+    document.addEventListener('sp:pricing-updated', onPricingChange);
+    document.addEventListener('sp:pricing-ready', onPricingChange);
   }
 
   function populateCountries() {
@@ -193,12 +329,32 @@
   }
 
   async function init() {
+    window.__SP_REFRESH_PRICES__?.();
+    if (window.SP_PRICING?.ready) await window.SP_PRICING.ready;
+    window.__SP_REFRESH_PRICES__?.();
+
     populateCountries();
     try {
       bootstrap = await api(`/api/checkout/bootstrap?plan=${planId}`);
+      window.SP_PRICING?.setFromBootstrap?.(bootstrap.plans);
     } catch {
       bootstrap = { enabled: false };
     }
+
+    if (bootstrap?.selectedPlan?.price != null && bootstrap?.selectedPlan?.id === planId) {
+      try {
+        const raw = localStorage.getItem('sp_admin_overrides') || '{}';
+        const local = JSON.parse(raw);
+        const hasLocal = local.pricing?.[planId] != null
+          || local.texts?.[`pricing.${planId}.price`];
+        if (!hasLocal && !new URLSearchParams(location.search).get('price')) {
+          window.__SP_PRICES__ = window.__SP_PRICES__ || {};
+          window.__SP_PRICES__[planId] = Number(bootstrap.selectedPlan.price);
+        }
+      } catch {}
+    }
+
+    window.__SP_REFRESH_PRICES__?.();
 
     $('store-skeleton').hidden = true;
 

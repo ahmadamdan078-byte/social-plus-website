@@ -41,9 +41,9 @@ function seed() {
   const serviceCount = db.prepare(`SELECT COUNT(*) as c FROM services`).get().c;
   if (serviceCount === 0) {
     const plans = [
-      ['Starter', 'المبتدئ', 'Essential social presence', 'حضور أساسي على السوشيال', 12, 'pricing', 0, 0],
-      ['Growth', 'النمو', 'Scale your reach', 'وسّع وصولك', 25, 'pricing', 1, 1],
-      ['Pro', 'احترافي', 'Full-service management', 'إدارة شاملة', 50, 'pricing', 0, 2]
+      ['Starter', 'المبتدئ', 'Essential social presence', 'حضور أساسي على السوشيال', 15.99, 'pricing', 0, 0],
+      ['Growth', 'النمو', 'Scale your reach', 'وسّع وصولك', 27.99, 'pricing', 1, 1],
+      ['Pro', 'احترافي', 'Full-service management', 'إدارة شاملة', 54.99, 'pricing', 0, 2]
     ];
     const ins = db.prepare(`
       INSERT INTO services (title_en, title_ar, description_en, description_ar, price, category, featured, sort_order)
@@ -108,7 +108,32 @@ function seed() {
     `).run();
   }
 
+  /* 18% off all plans — single use only (Starter, Growth, Pro) */
+  const save18Plans = JSON.stringify(['starter', 'growth', 'pro']);
+  const save18 = db.prepare(`SELECT id, used_count FROM promo_codes WHERE code = 'SAVE18' COLLATE NOCASE`).get();
+  if (!save18) {
+    db.prepare(`
+      INSERT INTO promo_codes (code, type, value, max_uses, min_amount_cents, plan_ids, per_email_limit, active)
+      VALUES ('SAVE18', 'percent', 18, 1, 0, ?, 0, 1)
+    `).run(save18Plans);
+    console.log('Promo SAVE18 created: 18% off Starter/Growth/Pro — one use only.');
+  } else if (save18.used_count < 1) {
+    db.prepare(`
+      UPDATE promo_codes
+      SET type = 'percent', value = 18, max_uses = 1, min_amount_cents = 0,
+          plan_ids = ?, per_email_limit = 0, active = 1, updated_at = datetime('now')
+      WHERE id = ?
+    `).run(save18Plans, save18.id);
+  }
+
   console.log('Seed complete.');
+
+  try {
+    const { writePublicOverridesFile, getPlanPricing } = require('./services/plan-pricing');
+    writePublicOverridesFile(getPlanPricing());
+  } catch (err) {
+    console.warn('Could not write public pricing file:', err.message);
+  }
 }
 
 if (require.main === module) seed();

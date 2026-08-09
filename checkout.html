@@ -7,11 +7,12 @@
   <title>Checkout — Social Plus</title>
   <link rel="icon" href="assets/social-plus-logo.png">
   <meta name="sp-api-base" content="">
+  <script src="js/pricing-inline.js?v=37"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css?v=29">
-  <link rel="stylesheet" href="css/checkout-store.css?v=29">
+  <link rel="stylesheet" href="css/checkout-store.css?v=36">
   <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body class="store-checkout">
@@ -38,8 +39,18 @@
           <img id="fb-img" src="assets/social-plus-logo.png" alt="" width="64" height="64">
           <div>
             <strong id="fb-plan">Growth Plan</strong>
-            <p id="fb-price">$25.00</p>
+            <p id="fb-price">—</p>
+            <p class="store-fallback__discount" id="fb-discount-row" hidden>Discount: <span id="fb-discount">—</span></p>
+            <p class="store-fallback__total">Total: <span id="fb-total">—</span></p>
           </div>
+        </div>
+        <div class="store-field">
+          <label for="fb-promo">Promo code (optional)</label>
+          <div class="store-promo">
+            <input type="text" id="fb-promo" placeholder="e.g. SAVE18" autocomplete="off">
+            <button type="button" class="store-btn store-btn--ghost" id="fb-promo-apply">Apply</button>
+          </div>
+          <p class="store-promo-msg" id="fb-promo-msg" hidden></p>
         </div>
         <div class="store-field">
           <label for="fb-name">Your name</label>
@@ -154,8 +165,10 @@
     </div>
   </main>
 
-  <script src="js/api-base.js?v=33"></script>
-  <script src="js/countries.js?v=33"></script>
-  <script src="js/checkout-store.js?v=33"></script>
+  <script src="js/api-base.js?v=37"></script>
+  <script src="js/admin-config.js?v=37"></script>
+  <script src="js/pricing.js?v=37"></script>
+  <script src="js/countries.js?v=37"></script>
+  <script src="js/checkout-store.js?v=37"></script>
 </body>
 </html>

@@ -1,4 +1,5 @@
 const { db } = require('../db');
+const { getPlanPricing } = require('../services/plan-pricing');
 
 function routerPublic() {
   const express = require('express');
@@ -35,12 +36,17 @@ function routerPublic() {
       testimonials,
       announcement: announcement || null,
       settings,
-      design
+      design,
+      pricing: getPlanPricing()
     });
   });
 
   router.get('/health', (req, res) => {
     res.json({ ok: true, time: new Date().toISOString() });
+  });
+
+  router.get('/pricing', (req, res) => {
+    res.json({ plans: getPlanPricing() });
   });
 
   return router;

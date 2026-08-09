@@ -2,6 +2,7 @@ const { db } = require('../db');
 const { logAdminAction } = require('../audit');
 const { requireAuth, requirePermission } = require('../middleware/auth');
 const { PERMISSIONS } = require('../permissions');
+const { getPlanPricing, setPlanPricing } = require('../services/plan-pricing');
 
 function ip(req) {
   return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
@@ -49,6 +50,17 @@ function routerServices() {
       b.visible != null ? (b.visible ? 1 : 0) : null, b.sort_order, id
     );
     logAdminAction(req.admin.id, 'update_service', 'service', id, b, ip(req));
+    if (b.price != null) {
+      const row = db.prepare(`SELECT title_en, category FROM services WHERE id = ?`).get(id);
+      if (row?.category === 'pricing') {
+        const tier = (row.title_en || '').trim().toLowerCase();
+        if (['starter', 'growth', 'pro'].includes(tier)) {
+          const plans = getPlanPricing();
+          plans[tier] = Number(b.price);
+          setPlanPricing(plans);
+        }
+      }
+    }
     res.json({ ok: true });
   });
 

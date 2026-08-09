@@ -1,13 +1,49 @@
-const PLANS = {
-  starter: { priceCents: 1200, name: 'Starter Plan' },
-  growth: { priceCents: 2500, name: 'Growth Plan' },
-  pro: { priceCents: 5000, name: 'Pro Plan' }
+const DEFAULT_PLANS = {
+  starter: { priceCents: 1599, name: 'Starter Plan' },
+  growth: { priceCents: 2799, name: 'Growth Plan' },
+  pro: { priceCents: 5499, name: 'Pro Plan' }
 };
 
 const PROCESSING_FEE_CENTS = 0;
 
+function loadPlansFromDb() {
+  const plans = JSON.parse(JSON.stringify(DEFAULT_PLANS));
+  try {
+    const { db } = require('../db');
+    const rows = db.prepare(`
+      SELECT title_en, price FROM services
+      WHERE category = 'pricing' AND deleted_at IS NULL
+      ORDER BY sort_order, id
+    `).all();
+    rows.forEach((r) => {
+      const id = (r.title_en || '').trim().toLowerCase();
+      if (plans[id] && r.price != null && !Number.isNaN(Number(r.price))) {
+        plans[id].priceCents = Math.round(Number(r.price) * 100);
+      }
+    });
+    const settings = db.prepare(`
+      SELECT key, value FROM site_settings
+      WHERE key IN ('pricing_starter', 'pricing_growth', 'pricing_pro')
+    `).all();
+    settings.forEach((s) => {
+      const id = s.key.replace('pricing_', '');
+      if (plans[id] && s.value != null && !Number.isNaN(Number(s.value))) {
+        plans[id].priceCents = Math.round(Number(s.value) * 100);
+      }
+    });
+  } catch {
+    /* DB not ready — use defaults */
+  }
+  return plans;
+}
+
+function getPlans() {
+  return loadPlansFromDb();
+}
+
 function getPlan(planId) {
-  return PLANS[planId] || PLANS.growth;
+  const plans = getPlans();
+  return plans[planId] || plans.growth;
 }
 
 function computeTotals(planId, quantity = 1, discountCents = 0) {
@@ -143,7 +179,8 @@ function findPaymentById(id) {
 }
 
 module.exports = {
-  PLANS,
+  DEFAULT_PLANS,
+  getPlans,
   getPlan,
   computeTotals,
   createPendingOrder,

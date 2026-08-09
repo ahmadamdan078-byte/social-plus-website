@@ -1,6 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 const { db } = require('../db');
-const { PLANS, getPlan, markPaymentStatus, findPaymentById } = require('./order-service');
+const { getPlans, getPlan, markPaymentStatus, findPaymentById } = require('./order-service');
 const { validatePromo, redeemPromo } = require('./promo-service');
 const { getBalance, applyWalletPayment } = require('./wallet-service');
 const { getPublicSettings, getEnabledMethods } = require('./settings-service');
@@ -325,7 +325,7 @@ function getPaymentAnalytics() {
 }
 
 module.exports = {
-  PLANS,
+  getPlans,
   PLAN_IMAGES,
   computeQuote,
   formatQuote,

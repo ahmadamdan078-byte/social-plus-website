@@ -42,13 +42,87 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides));
   }
 
-  function saveOverrides(notifyUser) {
+  function effectivePrice(tier) {
+    const num = get(`pricing.${tier}`);
+    if (num != null && num !== '') return Number(num);
+    const text = get(`texts.pricing.${tier}.price`);
+    if (text) {
+      const parsed = parseFloat(String(text).replace(/[^0-9.]/g, ''));
+      if (isFinite(parsed)) return parsed;
+    }
+    return null;
+  }
+
+  function syncPricingTextKeys() {
+    ['starter', 'growth', 'pro'].forEach((tier) => {
+      const price = effectivePrice(tier);
+      if (price != null) {
+        if (!overrides.pricing) overrides.pricing = {};
+        if (overrides.pricing[tier] == null) overrides.pricing[tier] = price;
+        if (!overrides.texts) overrides.texts = {};
+        overrides.texts[`pricing.${tier}.price`] = `$${Number(price).toFixed(2)}`;
+      }
+    });
+    try {
+      const stored = {};
+      ['starter', 'growth', 'pro'].forEach((tier) => {
+        const p = effectivePrice(tier);
+        if (p != null) stored[tier] = p;
+      });
+      sessionStorage.setItem('sp_plan_prices', JSON.stringify(stored));
+    } catch (err) {}
+  }
+
+  async function syncPricingToServer() {
+    const pricing = {
+      starter: effectivePrice('starter'),
+      growth: effectivePrice('growth'),
+      pro: effectivePrice('pro')
+    };
+    if (pricing.starter == null && pricing.growth == null && pricing.pro == null) return false;
+
+    try {
+      const res = await fetch(window.spApi('/api/settings/plan-pricing'), {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pricing)
+      });
+      if (res.ok) {
+        const data = await res.json().catch(() => ({}));
+        if (data.plans) window.SP_PRICING?.setFromPublicPricing?.(data.plans);
+        window.__SP_REFRESH_PRICES__?.();
+        window.SP_PRICING?.applyToDom?.();
+        return true;
+      }
+    } catch (err) {
+      /* server unavailable — fall back to downloadable overrides file */
+    }
+
+    downloadPublicPricingFile(pricing);
+    return false;
+  }
+
+  function downloadPublicPricingFile(pricing) {
+    const payload = { pricing };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'site-overrides.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  async function saveOverrides(notifyUser) {
     if (overrides.features) delete overrides.features.maintenance;
+    syncPricingTextKeys();
     persist();
     applyOverrides();
+    window.SP_PRICING?.applyToDom?.();
+    const published = await syncPricingToServer();
     if (notifyUser) {
       renderPanel();
-      notify(t('admin.saved'));
+      notify(published ? t('admin.pricingPublished') : t('admin.pricingDownloaded'));
     }
   }
 
@@ -71,8 +145,22 @@
   }
 
   async function initOverrides() {
-    overrides = deepMerge(await fetchRemoteOverrides(), loadLocalOverrides());
+    let apiPricing = {};
+    try {
+      const res = await fetch(window.spApi('/api/public/pricing'), { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.plans) apiPricing = data.plans;
+      }
+    } catch (err) { /* static site */ }
+
+    overrides = deepMerge(
+      { pricing: apiPricing },
+      await fetchRemoteOverrides(),
+      loadLocalOverrides()
+    );
     if (overrides.features) delete overrides.features.maintenance;
+    syncPricingTextKeys();
     persist();
     applyOverrides();
   }
@@ -123,7 +211,7 @@
     ['starter', 'growth', 'pro'].forEach(tier => {
       const price = get(`pricing.${tier}`);
       const el = document.querySelector(`[data-price-tier="${tier}"]`);
-      if (price != null && el) el.textContent = `$${price}`;
+      if (price != null && el) el.textContent = `$${Number(price).toFixed(2)}`;
     });
 
     const wa = get('contact.whatsapp');
@@ -341,6 +429,7 @@
 
   function previewFromForm() {
     collectFromForm();
+    syncPricingTextKeys();
     applyOverrides();
   }
 
@@ -422,9 +511,10 @@
           <label class="admin-field"><span>${t('admin.hero.line2')}</span><input type="text" data-admin-text="hero.title.line2" value="${esc(get('texts.hero.title.line2', '') || textValue('hero.title.line2'))}"></label>
           <label class="admin-field"><span>${t('admin.hero.subtitle')}</span><textarea data-admin-text="hero.subtitle" rows="3">${esc(get('texts.hero.subtitle', '') || textValue('hero.subtitle'))}</textarea></label>
           <label class="admin-field"><span>${t('admin.services.title')}</span><input type="text" data-admin-text="services.title" value="${esc(get('texts.services.title', '') || textValue('services.title'))}"></label>
-          <label class="admin-field"><span>${t('admin.pricing.starter')}</span><input type="number" data-admin-path="pricing.starter" value="${esc(get('pricing.starter', 12))}"></label>
-          <label class="admin-field"><span>${t('admin.pricing.growth')}</span><input type="number" data-admin-path="pricing.growth" value="${esc(get('pricing.growth', 25))}"></label>
-          <label class="admin-field"><span>${t('admin.pricing.pro')}</span><input type="number" data-admin-path="pricing.pro" value="${esc(get('pricing.pro', 50))}"></label>
+          <label class="admin-field"><span>${t('admin.pricing.starter')}</span><input type="number" step="0.01" data-admin-path="pricing.starter" value="${esc(get('pricing.starter', 15.99))}"></label>
+          <label class="admin-field"><span>${t('admin.pricing.growth')}</span><input type="number" step="0.01" data-admin-path="pricing.growth" value="${esc(get('pricing.growth', 27.99))}"></label>
+          <label class="admin-field"><span>${t('admin.pricing.pro')}</span><input type="number" step="0.01" data-admin-path="pricing.pro" value="${esc(get('pricing.pro', 54.99))}"></label>
+          <p class="admin-hint">${t('admin.pricingHint')}</p>
           <label class="admin-field"><span>${t('admin.contact.wa')}</span><input type="text" data-admin-path="contact.whatsapp" value="${esc(get('contact.whatsapp', '970595052784'))}"></label>
           <label class="admin-field"><span>${t('admin.contact.ig')}</span><input type="text" data-admin-path="contact.instagram" value="${esc(get('contact.instagram', 'socialplus.ps'))}"></label>
           <label class="admin-field"><span>${t('admin.announcement')}</span><input type="text" data-admin-path="announcement" value="${esc(get('announcement', ''))}" placeholder="${t('admin.announcementPh')}"></label>

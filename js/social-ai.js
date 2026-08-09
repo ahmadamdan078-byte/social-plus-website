@@ -20,11 +20,13 @@
 
   const WA_LINK = 'https://wa.me/970595052784?text=' + encodeURIComponent("Hello Social Plus! I'd like to start a project.");
 
-  const PLANS = [
-    { id: 'starter', price: 12, key: 'ai.planStarter' },
-    { id: 'growth', price: 25, key: 'ai.planGrowth', featured: true },
-    { id: 'pro', price: 50, key: 'ai.planPro' }
-  ];
+  function getPlanList() {
+    return [
+      { id: 'starter', price: 15.99, key: 'ai.planStarter' },
+      { id: 'growth', price: 27.99, key: 'ai.planGrowth', featured: true },
+      { id: 'pro', price: 54.99, key: 'ai.planPro' }
+    ];
+  }
 
   let isOpen = false;
   let isTyping = false;
@@ -84,7 +86,9 @@
     });
     root.querySelectorAll('[data-plan]').forEach((btn) => {
       btn.addEventListener('click', () => {
-        location.href = `checkout.html?plan=${btn.dataset.plan}`;
+        const id = btn.dataset.plan;
+        const price = window.SP_PRICING?.getPrice?.(id) ?? '';
+        location.href = `checkout.html?plan=${id}${price ? `&price=${price}` : ''}`;
       });
     });
   }
@@ -106,10 +110,10 @@
   }
 
   function renderPlanCards(recommended) {
-    return `<div class="social-ai__plans">${PLANS.map((p) => `
+    return `<div class="social-ai__plans">${getPlanList().map((p) => `
       <button type="button" class="social-ai__plan${p.id === recommended ? ' is-pick' : ''}${p.featured ? ' is-featured' : ''}" data-plan="${p.id}">
         <span class="social-ai__plan-name">${escapeHtml(t(p.key))}</span>
-        <span class="social-ai__plan-price">$${p.price}<small>/mo</small></span>
+        <span class="social-ai__plan-price">$${Number(p.price).toFixed(2)}<small>/mo</small></span>
         ${p.id === recommended ? `<span class="social-ai__plan-tag">${escapeHtml(t('ai.recommended'))}</span>` : ''}
       </button>
     `).join('')}</div>`;
